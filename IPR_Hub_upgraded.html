@@ -1,0 +1,2313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VINAYA — IPR Games & Atlas</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&family=Cinzel:wght@400;500;600;700&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet">
+<style>
+
+
+:root {
+  --bg: #0c0c0e;
+  --surface: #16161a;
+  --surface2: #1e1e24;
+  --border: #28282f;
+  --border2: #333340;
+  --text: #e8e4d9;
+  --text-muted: #7a7a8a;
+  --text-dim: #4a4a5a;
+  --gold: #c9a84c;
+  --gold-dim: #7a5e22;
+  --gold-glow: rgba(201,168,76,0.15);
+  --correct: #2d6a4f;
+  --correct-b: #40916c;
+  --present: #b5550a;
+  --present-b: #d97706;
+  --absent: #222228;
+  --absent-t: #44444f;
+  /* Connections difficulty colors */
+  --c1: #4a7c59; /* Easiest - green */
+  --c2: #7b5ea7; /* Medium - purple */
+  --c3: #b5550a; /* Hard - amber */
+  --c4: #8b2020; /* Hardest - red */
+  --c1-light: #c8e6c9;
+  --c2-light: #e1d5f5;
+  --c3-light: #ffe0b2;
+  --c4-light: #ffcdd2;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow-x:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;}
+
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");pointer-events:none;z-index:0;}
+
+/* ─── SCREENS ─── */
+.screen{display:none;flex-direction:column;align-items:center;width:100%;max-width:560px;padding:0 12px;position:relative;z-index:10;}
+.screen.active{display:flex;}
+
+/* ─── SHARED HEADER ─── */
+.app-header{width:100%;display:flex;align-items:center;justify-content:space-between;padding:18px 0 0;border-bottom:1px solid var(--border);padding-bottom:14px;margin-bottom:4px;}
+.logo{font-family:'Playfair Display',serif;font-size:30px;font-weight:900;color:var(--gold);letter-spacing:-1px;text-shadow:0 0 40px rgba(201,168,76,0.25);}
+.logo span{color:var(--text);font-weight:700;}
+.subtitle{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);font-family:'DM Mono',monospace;padding:5px 0 14px;text-align:center;}
+.hdr-btns{display:flex;gap:6px;}
+.icon-btn{background:none;border:1px solid var(--border);color:var(--text-muted);width:34px;height:34px;border-radius:8px;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all .2s;font-family:'DM Mono',monospace;}
+.icon-btn:hover{border-color:var(--gold);color:var(--gold);}
+.back-btn{display:flex;align-items:center;gap:6px;font-size:12px;letter-spacing:1.5px;font-family:'DM Mono',monospace;text-transform:uppercase;}
+
+/* ─── HOME SCREEN ─── */
+#home-screen{gap:0;padding-top:0;}
+.home-hero{text-align:center;padding:48px 0 36px;}
+.home-hero h1{font-family:'Playfair Display',serif;font-size:58px;font-weight:900;color:var(--gold);letter-spacing:-2px;line-height:1;text-shadow:0 0 60px rgba(201,168,76,0.3);}
+.home-hero h1 span{color:var(--text);}
+.home-hero p{font-size:13px;color:var(--text-muted);margin-top:10px;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;}
+.game-cards{display:flex;gap:14px;width:100%;padding:0 0 40px;max-width:680px;}
+.game-card{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px 20px;cursor:pointer;transition:all .25s;text-align:center;position:relative;overflow:hidden;}
+.game-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 0%,var(--gold-glow),transparent 70%);opacity:0;transition:opacity .3s;}
+.game-card:hover{border-color:var(--gold-dim);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4);}
+.game-card:hover::before{opacity:1;}
+.game-card .card-icon{font-size:40px;margin-bottom:14px;display:block;}
+.game-card h2{font-family:'Playfair Display',serif;font-size:22px;color:var(--text);margin-bottom:8px;}
+.game-card p{font-size:12px;color:var(--text-muted);line-height:1.7;}
+.card-badge{display:inline-block;margin-top:14px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:2px;text-transform:uppercase;padding:4px 10px;border-radius:4px;background:rgba(201,168,76,0.1);color:var(--gold);border:1px solid var(--gold-dim);}
+
+/* ─── TOAST ─── */
+#toast{position:fixed;top:72px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--text);color:var(--bg);padding:9px 20px;border-radius:8px;font-size:13px;font-weight:600;font-family:'DM Mono',monospace;letter-spacing:.5px;opacity:0;transition:all .25s;z-index:999;pointer-events:none;white-space:nowrap;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ─── MODAL BASE ─── */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;}
+.modal-overlay.open{display:flex;}
+.modal-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:30px 26px;max-width:360px;width:92%;text-align:center;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.modal-box h2{font-family:'Playfair Display',serif;font-size:26px;color:var(--gold);margin-bottom:8px;}
+.modal-btn{display:inline-block;background:var(--correct-b);color:#fff;border:none;padding:11px 26px;border-radius:8px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;margin:4px;}
+.modal-btn:hover{background:var(--correct);}
+.modal-btn.outline{background:none;border:1px solid var(--border2);color:var(--text-muted);}
+.modal-btn.outline:hover{border-color:var(--gold);color:var(--gold);background:none;}
+.modal-btn.gold{background:var(--gold);color:#0c0c0e;}
+.modal-btn.gold:hover{background:#b8943e;}
+.stats-row{display:flex;justify-content:center;gap:22px;margin:16px 0;}
+.stat-num{font-family:'Playfair Display',serif;font-size:34px;font-weight:700;color:var(--text);line-height:1;}
+.stat-label{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-top:3px;}
+.result-word{font-family:'Playfair Display',serif;font-size:32px;font-weight:900;color:var(--text);letter-spacing:5px;margin:10px 0 5px;}
+.result-def{font-size:12px;color:var(--text-muted);line-height:1.65;margin-bottom:18px;}
+
+/* ─────────────────────────────────────────
+   WORDLE SCREEN
+───────────────────────────────────────── */
+#wordle-screen{gap:0;}
+#grid{display:grid;grid-template-rows:repeat(6,58px);grid-template-columns:repeat(5,58px);gap:5px;padding:14px 0 8px;}
+.tile{width:58px;height:58px;border:2px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--text);border-radius:6px;transition:border-color .1s;}
+.tile.filled{border-color:#505060;animation:tpop .1s ease;}
+@keyframes tpop{0%{transform:scale(.92);}50%{transform:scale(1.07);}100%{transform:scale(1);}}
+.tile.shake{animation:shake .4s ease;}
+@keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-7px);}40%{transform:translateX(7px);}60%{transform:translateX(-5px);}80%{transform:translateX(5px);}}
+.tile.flip{animation:flip .5s ease forwards;}
+@keyframes flip{0%{transform:rotateX(0);}50%{transform:rotateX(-90deg);}100%{transform:rotateX(0);}}
+.tile.correct{background:var(--correct);border-color:var(--correct-b);color:#fff;}
+.tile.present{background:var(--present);border-color:var(--present-b);color:#fff;}
+.tile.absent{background:var(--absent);border-color:transparent;color:var(--absent-t);}
+.tile.bounce{animation:tbounce .5s ease;}
+@keyframes tbounce{0%,100%{transform:translateY(0);}40%{transform:translateY(-18px);}60%{transform:translateY(-8px);}}
+
+/* Hint */
+#hint-section{width:100%;max-width:400px;padding:0 0 10px;}
+.hint-btn{width:100%;background:none;border:1px solid var(--gold-dim);color:var(--gold);padding:9px 16px;border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.hint-btn:hover{background:var(--gold-glow);border-color:var(--gold);}
+.hint-btn:disabled{opacity:.3;cursor:not-allowed;}
+.hint-panel{display:none;margin-top:8px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;animation:slideDown .2s ease;}
+.hint-panel.open{display:block;}
+@keyframes slideDown{from{opacity:0;transform:translateY(-8px);}to{opacity:1;transform:translateY(0);}}
+.hint-panel h4{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2.5px;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px;}
+.hint-choices{display:flex;gap:8px;}
+.hint-choice{flex:1;padding:11px;border-radius:9px;border:1px solid var(--border);background:var(--surface2);color:var(--text);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;transition:all .2s;text-align:center;}
+.hint-choice:hover{border-color:var(--gold);color:var(--gold);}
+.hint-reveal{margin-top:10px;background:rgba(201,168,76,.08);border:1px solid var(--gold-dim);border-radius:8px;padding:9px 14px;font-family:'DM Mono',monospace;font-size:12px;color:var(--gold);display:none;text-align:center;}
+.hint-reveal.show{display:block;}
+.hints-used{margin-top:6px;font-size:11px;color:var(--text-muted);text-align:center;font-family:'DM Mono',monospace;}
+
+/* Keyboard */
+#keyboard{width:100%;max-width:500px;padding:0 6px 18px;}
+.kb-row{display:flex;justify-content:center;gap:4px;margin-bottom:4px;}
+.key{height:54px;min-width:38px;padding:0 5px;border-radius:6px;border:none;background:var(--surface2);color:var(--text-muted);font-family:'DM Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;user-select:none;}
+.key:hover{background:#2a2a35;}
+.key:active{transform:scale(.93);}
+.key.wide{min-width:58px;font-size:10px;letter-spacing:.5px;}
+.key.correct{background:var(--correct);color:#fff;}
+.key.present{background:var(--present);color:#fff;}
+.key.absent{background:#1a1a1f;color:var(--text-dim);}
+
+/* ─────────────────────────────────────────
+   CONNECTIONS SCREEN
+───────────────────────────────────────── */
+#conn-screen{gap:0;}
+.conn-intro{font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-align:center;padding:10px 0 14px;}
+.conn-intro span{color:var(--text);}
+.conn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;padding:0 0 14px;}
+.conn-card{height:70px;border-radius:10px;border:2px solid var(--border2);background:var(--surface2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--text);text-align:center;padding:6px;line-height:1.3;user-select:none;position:relative;}
+.conn-card:hover{border-color:var(--border2);background:#252530;}
+.conn-card.selected{border-color:var(--gold);background:rgba(201,168,76,.12);color:var(--gold);}
+.conn-card.correct-anim{animation:connPop .4s ease;}
+@keyframes connPop{0%{transform:scale(1);}50%{transform:scale(1.08);}100%{transform:scale(1);}}
+.conn-card.wrong-anim{animation:connShake .4s ease;}
+@keyframes connShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+.conn-card.solved{cursor:default;pointer-events:none;}
+.conn-card.solved.d0{background:var(--c1);border-color:var(--c1);color:#fff;}
+.conn-card.solved.d1{background:var(--c2);border-color:var(--c2);color:#fff;}
+.conn-card.solved.d2{background:var(--c3);border-color:var(--c3);color:#fff;}
+.conn-card.solved.d3{background:var(--c4);border-color:var(--c4);color:#fff;}
+
+/* Solved group banner */
+.solved-group{border-radius:10px;padding:12px 16px;margin-bottom:8px;animation:slideIn .35s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:translateY(0);}}
+.solved-group.d0{background:var(--c1);}
+.solved-group.d1{background:var(--c2);}
+.solved-group.d2{background:var(--c3);}
+.solved-group.d3{background:var(--c4);}
+.sg-cat{font-size:11px;letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;color:rgba(255,255,255,.75);margin-bottom:4px;}
+.sg-words{font-family:'Playfair Display',serif;font-size:16px;color:#fff;font-weight:700;}
+
+/* Conn controls */
+.conn-controls{display:flex;gap:10px;padding:6px 0 14px;width:100%;justify-content:center;}
+.conn-btn{padding:10px 22px;border-radius:9px;border:1px solid var(--border2);background:none;color:var(--text-muted);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:1.5px;text-transform:uppercase;cursor:pointer;transition:all .2s;}
+.conn-btn:hover{border-color:var(--gold);color:var(--gold);}
+.conn-btn.primary{background:var(--text);color:var(--bg);border-color:var(--text);}
+.conn-btn.primary:hover{background:var(--gold);border-color:var(--gold);color:var(--bg);}
+.conn-btn:disabled{opacity:.3;cursor:not-allowed;}
+
+/* Mistakes */
+.mistakes-row{display:flex;gap:8px;align-items:center;padding:4px 0 12px;justify-content:center;}
+.mistakes-label{font-family:'DM Mono',monospace;font-size:11px;color:var(--text-muted);letter-spacing:1px;text-transform:uppercase;}
+.mistake-dot{width:12px;height:12px;border-radius:50%;background:var(--text-muted);transition:background .3s;}
+.mistake-dot.used{background:var(--present-b);}
+
+/* Difficulty legend */
+.diff-legend{display:flex;gap:8px;padding:0 0 10px;justify-content:center;flex-wrap:wrap;}
+.diff-pill{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;padding:3px 10px;border-radius:4px;color:#fff;}
+.diff-pill.d0{background:var(--c1);}
+.diff-pill.d1{background:var(--c2);}
+.diff-pill.d2{background:var(--c3);}
+.diff-pill.d3{background:var(--c4);}
+
+/* Conn result modal */
+.conn-result-group{display:flex;align-items:center;gap:10px;margin:8px 0;padding:10px 14px;border-radius:9px;}
+.conn-result-group.d0{background:rgba(74,124,89,.2);border:1px solid var(--c1);}
+.conn-result-group.d1{background:rgba(123,94,167,.2);border:1px solid var(--c2);}
+.conn-result-group.d2{background:rgba(181,85,10,.2);border:1px solid var(--c3);}
+.conn-result-group.d3{background:rgba(139,32,32,.2);border:1px solid var(--c4);}
+.crg-cat{font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted);}
+.crg-words{font-size:13px;color:var(--text);font-weight:500;}
+
+/* Help tiles */
+.help-box{background:var(--surface);border:1px solid var(--border2);border-radius:18px;padding:26px 22px;max-width:370px;width:92%;max-height:88vh;overflow-y:auto;}
+.help-box h2{font-family:'Playfair Display',serif;color:var(--gold);font-size:22px;margin-bottom:6px;}
+.help-box p{font-size:13px;color:var(--text-muted);line-height:1.7;margin-bottom:14px;}
+.help-example{display:flex;gap:4px;margin:10px 0;}
+.help-tile{width:42px;height:42px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:19px;font-weight:700;}
+.ht-c{background:var(--correct);color:#fff;}
+.ht-p{background:var(--present);color:#fff;}
+.ht-a{background:var(--absent);color:var(--absent-t);border:2px solid var(--border2);}
+.ht-e{background:var(--surface2);color:var(--text);border:2px solid var(--border2);}
+.help-label{font-size:11px;color:var(--text-muted);margin:3px 0 10px;}
+.help-section{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);}
+.help-section h3{font-family:'Playfair Display',serif;color:var(--text);font-size:16px;margin-bottom:8px;}
+.conn-help-demo{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin:10px 0;}
+.chd-card{height:44px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:9px;font-family:'DM Mono',monospace;text-align:center;padding:3px;color:#fff;letter-spacing:.5px;}
+
+
+/* ─── ATLAS OVERLAY ─── */
+
+/* === ATLAS SCREEN === */
+#atlas-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #03060d;
+  font-family: 'Crimson Pro', Georgia, serif;
+  color: rgba(235,228,210,0.95);
+}
+#atlas-screen {
+  --gold:#c9a84c;--gold2:#f0d070;--gold-dim:rgba(201,168,76,0.14);
+  --ink:#03060d;--surf:#070b16;--surf2:#0b1020;
+  --border:rgba(201,168,76,0.18);--border2:rgba(201,168,76,0.08);
+  --txt:rgba(235,228,210,0.95);--txt-mid:rgba(235,228,210,0.78);--txt-dim:rgba(235,228,210,0.48);
+  --panel:420px;
+  --gi:#29b6f6;--patent:#ce93d8;--tm:#ffb74d;--cr:#81c784;--ph:#ef9a9a;--sep:#80deea;
+}
+
+/* ATLAS SPLASH */
+#atlas-splash{position:absolute;inset:0;background:var(--ink);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;pointer-events:none;animation:splashOut 0.7s ease 3.1s forwards;}
+#atlas-splash h1{font-family:'Cinzel',serif;font-size:clamp(1.5rem,3.5vw,2.7rem);font-weight:700;color:var(--gold);letter-spacing:.12em;text-align:center;opacity:0;transform:translateY(18px);animation:rise .9s cubic-bezier(.22,1,.36,1) .3s forwards;}
+#atlas-splash p{font-family:'Courier Prime',monospace;font-size:.58rem;letter-spacing:.24em;text-transform:uppercase;color:var(--txt-dim);opacity:0;animation:rise .9s cubic-bezier(.22,1,.36,1) .65s forwards;}
+#atlas-splash-rule{width:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);animation:ruleGrow .8s ease 1.1s forwards;}
+@keyframes rise{to{opacity:1;transform:none;}}
+@keyframes ruleGrow{to{width:260px;}}
+@keyframes splashOut{to{opacity:0;pointer-events:none;}}
+@keyframes dShow{to{opacity:1;}}
+@keyframes dHide{to{opacity:0;}}
+
+/* ATLAS APP SHELL */
+#atlas-app{display:flex;flex-direction:column;width:100%;height:100%;}
+#hdr{height:52px;background:rgba(3,6,13,.97);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:15px;flex-shrink:0;z-index:100;backdrop-filter:blur(14px);}
+.logo-t{font-family:'Cinzel',serif;font-size:.92rem;font-weight:600;color:var(--gold);letter-spacing:.08em;line-height:1;}
+.logo-s{font-family:'Courier Prime',monospace;font-size:.42rem;color:var(--txt-dim);letter-spacing:.17em;text-transform:uppercase;margin-top:2px;}
+.hdiv{width:1px;height:26px;background:var(--border);flex-shrink:0;}
+#cat-row{display:flex;gap:4px;flex:1;overflow-x:auto;scrollbar-width:none;min-width:0;}
+#cat-row::-webkit-scrollbar{display:none;}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border:1px solid rgba(255,255,255,.08);font-family:'Courier Prime',monospace;font-size:.52rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;white-space:nowrap;color:var(--txt-dim);background:transparent;transition:color .14s,border-color .14s,background .14s;user-select:none;}
+.chip:hover{color:var(--txt);border-color:rgba(255,255,255,.2);}
+.chip.on{font-weight:700;color:#03060d;}
+.cdot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.hstats{display:flex;gap:18px;flex-shrink:0;}
+.hstat{text-align:right;}
+.hstat b{display:block;font-family:'Cinzel',serif;font-size:1rem;font-weight:600;color:var(--gold);line-height:1;}
+.hstat small{font-family:'Courier Prime',monospace;font-size:.42rem;letter-spacing:.13em;text-transform:uppercase;color:var(--txt-dim);}
+#atlas-body{display:flex;flex:1;overflow:hidden;min-height:0;}
+#gw{flex:1;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 44%,#060d22 0%,#020409 100%);min-width:0;}
+#stars-c{position:absolute;inset:0;pointer-events:none;}
+#gc{position:absolute;inset:0;width:100%;height:100%;cursor:grab;display:block;}
+#gc.drag{cursor:grabbing;}
+#coords{position:absolute;bottom:14px;left:14px;font-family:'Courier Prime',monospace;font-size:.48rem;letter-spacing:.09em;color:var(--txt-dim);z-index:10;pointer-events:none;line-height:1.8;}
+#gbtns{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:3px;z-index:10;}
+.gbtn{width:30px;height:30px;background:rgba(3,6,13,.88);border:1px solid var(--border);color:var(--gold);font-family:'Courier Prime',monospace;font-size:1rem;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .12s,color .12s;user-select:none;}
+.gbtn:hover{background:var(--gold);color:#03060d;}
+#tip{position:absolute;background:rgba(3,6,13,.97);border:1px solid var(--gold);padding:11px 14px;pointer-events:none;display:none;z-index:30;min-width:200px;max-width:260px;transform:translate(-50%,calc(-100% - 16px));}
+#tip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:var(--gold);}
+.t-cat{font-family:'Courier Prime',monospace;font-size:.47rem;letter-spacing:.16em;text-transform:uppercase;margin-bottom:4px;font-weight:700;}
+.t-name{font-family:'Cinzel',serif;font-size:.83rem;font-weight:600;color:var(--gold);line-height:1.3;margin-bottom:4px;}
+.t-ds{font-family:'Courier Prime',monospace;font-size:.5rem;color:rgba(235,228,210,.7);}
+#lgd{position:absolute;left:14px;top:14px;background:rgba(3,6,13,.88);border:1px solid var(--border);padding:10px 14px;z-index:10;backdrop-filter:blur(8px);}
+#lgd h5{font-family:'Courier Prime',monospace;font-size:.43rem;letter-spacing:.2em;text-transform:uppercase;color:var(--txt-dim);margin-bottom:8px;}
+.lr{display:flex;align-items:center;gap:7px;font-family:'Courier Prime',monospace;font-size:.5rem;color:var(--txt-mid);margin-bottom:5px;}
+.lr:last-child{margin-bottom:0;}
+.ldot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+#dhint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;z-index:5;opacity:0;animation:dShow .5s ease 3.8s forwards,dHide .5s ease 7.5s forwards;}
+#dhint p{font-family:'Courier Prime',monospace;font-size:.5rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(201,168,76,.4);}
+#sb{width:var(--panel);background:var(--surf);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;position:relative;}
+.sb-head{padding:13px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sb-head h2{font-family:'Cinzel',serif;font-size:.85rem;font-weight:600;letter-spacing:.04em;margin-bottom:4px;color:var(--txt);}
+.sb-head p{font-family:'Courier Prime',monospace;font-size:.5rem;color:var(--txt-dim);letter-spacing:.05em;line-height:1.65;}
+.sb-search{padding:9px 18px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.sb-search input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--border);padding:7px 10px;font-family:'Courier Prime',monospace;font-size:.56rem;letter-spacing:.05em;color:var(--txt);outline:none;transition:border-color .14s;}
+.sb-search input::placeholder{color:var(--txt-dim);}
+.sb-search input:focus{border-color:rgba(201,168,76,.45);}
+.sb-meta{padding:6px 18px;border-bottom:1px solid var(--border);font-family:'Courier Prime',monospace;font-size:.48rem;color:var(--txt-mid);letter-spacing:.09em;flex-shrink:0;}
+.sb-meta b{color:var(--gold);}
+.sb-list{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.2) transparent;}
+.sb-list::-webkit-scrollbar{width:2px;}
+.sb-list::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);}
+.crow{padding:11px 18px;border-bottom:1px solid var(--border2);cursor:pointer;position:relative;transition:background .12s;}
+.crow::before{content:'';position:absolute;left:0;top:0;bottom:0;width:2px;background:transparent;transition:background .12s;}
+.crow:hover{background:rgba(201,168,76,.05);}
+.crow:hover::before{background:var(--gold);}
+.crow.on{background:rgba(201,168,76,.08);}
+.crow.on::before{background:var(--gold);}
+.chead{display:flex;align-items:flex-start;gap:7px;margin-bottom:4px;}
+.cname{font-family:'Cinzel',serif;font-size:.73rem;font-weight:600;color:var(--txt);line-height:1.35;flex:1;letter-spacing:.02em;}
+.ctag{padding:2px 6px;font-family:'Courier Prime',monospace;font-size:.43rem;letter-spacing:.07em;text-transform:uppercase;flex-shrink:0;margin-top:1px;font-weight:700;}
+.cds{font-family:'Courier Prime',monospace;font-size:.5rem;color:var(--txt-mid);letter-spacing:.04em;margin-bottom:3px;}
+.cpts{font-size:.62rem;color:var(--txt-mid);line-height:1.35;font-weight:400;}
+.nores{padding:28px 18px;text-align:center;font-family:'Courier Prime',monospace;font-size:.52rem;letter-spacing:.09em;color:var(--txt-dim);}
+#det{position:absolute;inset:0;background:var(--surf);z-index:50;display:flex;flex-direction:column;transform:translateX(101%);transition:transform .3s cubic-bezier(.22,1,.36,1);overflow:hidden;}
+#det.open{transform:translateX(0);}
+#dethdr{padding:0 18px;height:44px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:pointer;}
+#dethdr:hover #dclose{background:var(--gold);color:#03060d;}
+.d-back{font-family:'Courier Prime',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);}
+#dclose{width:22px;height:22px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.68rem;color:var(--gold);transition:background .12s,color .12s;font-family:'Courier Prime',monospace;}
+#detbody{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:rgba(201,168,76,.2) transparent;}
+#detbody::-webkit-scrollbar{width:2px;}
+#detbody::-webkit-scrollbar-thumb{background:rgba(201,168,76,.25);}
+.d-flags{font-size:1.5rem;letter-spacing:4px;margin-bottom:9px;line-height:1;}
+.d-title{font-family:'Cinzel',serif;font-size:1.05rem;font-weight:700;color:var(--gold2);line-height:1.28;margin-bottom:9px;letter-spacing:.03em;}
+.d-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.stag{padding:2px 8px;font-family:'Courier Prime',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700;}
+.st-ad{background:rgba(46,125,50,.18);color:#81c784;border:1px solid rgba(129,199,132,.3);}
+.st-ag{background:rgba(201,168,76,.15);color:var(--gold2);border:1px solid rgba(201,168,76,.3);}
+.st-lp{background:rgba(183,28,28,.15);color:#ef9a9a;border:1px solid rgba(239,154,154,.3);}
+.st-co{background:rgba(0,96,100,.15);color:#80deea;border:1px solid rgba(128,222,234,.3);}
+.d-dkt{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:2px;padding:12px 14px;margin-bottom:14px;font-family:'Courier Prime',monospace;font-size:.56rem;letter-spacing:.05em;line-height:2;}
+.dkt-row{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.dkt-lbl{color:var(--gold);font-size:.48rem;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;flex-shrink:0;font-weight:700;}
+.dkt-val{color:var(--txt);font-size:.58rem;flex:1;}
+.sigbar{display:flex;align-items:center;gap:9px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+.siglbl{font-family:'Courier Prime',monospace;font-size:.46rem;letter-spacing:.12em;text-transform:uppercase;color:var(--txt-mid);white-space:nowrap;}
+.sigtr{flex:1;height:2px;background:rgba(201,168,76,.12);overflow:hidden;}
+.sigfill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1) .12s;}
+.sigsc{font-family:'Cinzel',serif;font-size:.85rem;color:var(--gold2);font-weight:700;}
+.dsec{margin-bottom:18px;}
+.dsec h3{font-family:'Courier Prime',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);padding-bottom:5px;border-bottom:1px solid var(--border);margin-bottom:10px;font-weight:700;}
+.dsec p{font-family:'Crimson Pro',Georgia,serif;font-size:.97rem;font-weight:400;line-height:1.82;color:var(--txt-mid);}
+.artlist{display:flex;flex-wrap:wrap;gap:4px;}
+.art{padding:2px 8px;border:1px solid rgba(201,168,76,.25);font-family:'Courier Prime',monospace;font-size:.48rem;color:var(--gold2);letter-spacing:.04em;background:rgba(201,168,76,.05);}
+.tline{display:flex;flex-direction:column;}
+.ti{display:flex;gap:10px;position:relative;}
+.ti:not(:last-child)::after{content:'';position:absolute;left:20px;top:14px;bottom:0;width:1px;background:rgba(201,168,76,.12);}
+.tdot{width:7px;height:7px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px;margin-left:17px;}
+.tc2{padding-bottom:13px;flex:1;}
+.ty{font-family:'Courier Prime',monospace;font-size:.5rem;color:var(--gold2);letter-spacing:.06em;margin-bottom:2px;font-weight:700;}
+.tt{font-family:'Crimson Pro',Georgia,serif;font-size:.9rem;font-weight:400;color:var(--txt-mid);line-height:1.65;}
+.flist{display:flex;flex-direction:column;gap:9px;}
+.fi{padding:10px 13px;border-left:2px solid rgba(201,168,76,.25);font-family:'Crimson Pro',Georgia,serif;font-size:.9rem;font-weight:400;color:var(--txt-mid);line-height:1.68;background:rgba(255,255,255,.02);}
+.obox{background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);padding:13px 15px;margin-bottom:18px;}
+.olbl{font-family:'Courier Prime',monospace;font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);margin-bottom:8px;font-weight:700;}
+.obox p{font-family:'Crimson Pro',Georgia,serif;font-size:.94rem;font-weight:400;line-height:1.78;color:var(--txt-mid);}
+.ref-section{margin-top:4px;border-top:1px solid var(--border);padding-top:16px;}
+.ref-section h3{font-family:'Courier Prime',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold);margin-bottom:12px;font-weight:700;}
+.ref-list{display:flex;flex-direction:column;gap:8px;}
+.ref-item{display:flex;gap:10px;align-items:flex-start;}
+.ref-icon{width:18px;height:18px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;font-size:.55rem;font-weight:700;font-family:'Courier Prime',monospace;}
+.ref-icon.wto{background:rgba(41,182,246,.15);color:#29b6f6;border:1px solid rgba(41,182,246,.25);}
+.ref-icon.sch{background:rgba(201,168,76,.12);color:var(--gold);border:1px solid rgba(201,168,76,.22);}
+.ref-icon.vid{background:rgba(239,83,80,.12);color:#ef5350;border:1px solid rgba(239,83,80,.22);}
+.ref-icon.art{background:rgba(129,199,132,.12);color:#81c784;border:1px solid rgba(129,199,132,.22);}
+.ref-body{flex:1;}
+.ref-label{font-family:'Courier Prime',monospace;font-size:.44rem;color:var(--txt-dim);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px;}
+.ref-link{font-family:'Crimson Pro',Georgia,serif;font-size:.86rem;font-weight:400;line-height:1.45;}
+.ref-link a{color:var(--gold2);text-decoration:none;border-bottom:1px solid rgba(201,168,76,.25);transition:color .12s,border-color .12s;}
+.ref-link a:hover{color:#fff;border-color:rgba(255,255,255,.5);}
+/* Globe loading indicator */
+#globe-loading{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:8;pointer-events:none;flex-direction:column;gap:12px;}
+#globe-loading p{font-family:'Courier Prime',monospace;font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(201,168,76,.5);}
+.globe-spinner{width:32px;height:32px;border:2px solid rgba(201,168,76,.15);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+</style>
+</head>
+<body>
+
+</head>
+<body>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══════════════ HOME SCREEN ═══════════════ -->
+<div class="screen active" id="home-screen">
+  <div class="app-header" style="border-bottom:none;padding-bottom:0;">
+    <div></div>
+    <div class="logo">VIN<span>AYA</span></div>
+    <div></div>
+  </div>
+  <div class="subtitle">Gujarat National Law University · IPR Edition</div>
+
+  <div class="home-hero">
+    <h1>VIN<span>AYA</span></h1>
+    <p>Navaneeth · Yash · Vikhram · IPR Word Games</p>
+  </div>
+
+  <div class="game-cards">
+    <div class="game-card" onclick="showAtlas()">
+      <span class="card-icon">🌍</span>
+      <h2>Atlas</h2>
+      <p>Explore 20 landmark WTO IPR disputes on an interactive 3D globe with full case analysis.</p>
+      <div class="card-badge">20 Cases</div>
+    </div>
+    <div class="game-card" onclick="showScreen('wordle-screen'); wNewGame();">
+      <span class="card-icon">🔤</span>
+      <h2>Wordle</h2>
+      <p>Guess the 5-letter IP law term in 6 tries. All words from Indian & international IPR.</p>
+      <div class="card-badge">6 Attempts</div>
+    </div>
+    <div class="game-card" onclick="showScreen('conn-screen'); connNewGame();">
+      <span class="card-icon">🔗</span>
+      <h2>Connections</h2>
+      <p>Group 16 IPR concepts into 4 categories. One wrong guess costs a life.</p>
+      <div class="card-badge">4 Mistakes</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ WORDLE SCREEN ═══════════════ -->
+<div class="screen" id="wordle-screen">
+  <div class="app-header">
+    <button class="icon-btn back-btn" onclick="showScreen('home-screen')">← Back</button>
+    <div class="logo">VIN<span>AYA</span></div>
+    <div class="hdr-btns">
+      <button class="icon-btn" onclick="document.getElementById('w-help').classList.add('open')">?</button>
+      <button class="icon-btn" onclick="wShowStats()">📊</button>
+    </div>
+  </div>
+  <div class="subtitle">IPR Wordle · VINAYA</div>
+
+  <div id="grid"></div>
+
+  <div id="hint-section">
+    <button class="hint-btn" id="hint-toggle-btn" onclick="toggleHint()">💡 Use a Hint</button>
+    <div class="hint-panel" id="hint-panel">
+      <h4>Choose Your Hint Type</h4>
+      <div class="hint-choices">
+        <button class="hint-choice" onclick="useHint('vowel')">🔤 Reveal a Vowel</button>
+        <button class="hint-choice" onclick="useHint('consonant')">🔡 Reveal a Consonant</button>
+      </div>
+      <div class="hint-reveal" id="hint-reveal"></div>
+      <div class="hints-used" id="hints-used-label"></div>
+    </div>
+  </div>
+
+  <div id="keyboard">
+    <div class="kb-row" id="wkb-r1"></div>
+    <div class="kb-row" id="wkb-r2"></div>
+    <div class="kb-row" id="wkb-r3"></div>
+  </div>
+</div>
+
+<!-- ═══════════════ CONNECTIONS SCREEN ═══════════════ -->
+<div class="screen" id="conn-screen">
+  <div class="app-header">
+    <button class="icon-btn back-btn" onclick="showScreen('home-screen')">← Back</button>
+    <div class="logo">VIN<span>AYA</span></div>
+    <div class="hdr-btns">
+      <button class="icon-btn" onclick="document.getElementById('c-help').classList.add('open')">?</button>
+    </div>
+  </div>
+  <div class="subtitle">IPR Connections · VINAYA</div>
+
+  <div class="conn-intro">Create four groups of four — <span>find what connects them.</span></div>
+
+  <div class="diff-legend">
+    <span class="diff-pill d0">Straightforward</span>
+    <span class="diff-pill d1">Moderate</span>
+    <span class="diff-pill d2">Tricky</span>
+    <span class="diff-pill d3">Expert</span>
+  </div>
+
+  <div id="solved-groups"></div>
+  <div class="conn-grid" id="conn-grid"></div>
+
+  <div class="mistakes-row">
+    <span class="mistakes-label">Mistakes remaining:</span>
+    <div class="mistake-dot" id="md0"></div>
+    <div class="mistake-dot" id="md1"></div>
+    <div class="mistake-dot" id="md2"></div>
+    <div class="mistake-dot" id="md3"></div>
+  </div>
+
+  <div class="conn-controls">
+    <button class="conn-btn" id="c-shuffle-btn" onclick="connShuffle()">Shuffle</button>
+    <button class="conn-btn" id="c-deselect-btn" onclick="connDeselect()" disabled>Deselect All</button>
+    <button class="conn-btn primary" id="c-submit-btn" onclick="connSubmit()" disabled>Submit</button>
+  </div>
+</div>
+
+<!-- ═══ WORDLE MODALS ═══ -->
+<div class="modal-overlay" id="w-end-modal">
+  <div class="modal-box">
+    <h2 id="w-modal-title">🎉 Brilliant!</h2>
+    <div class="result-word" id="w-modal-word"></div>
+    <div class="result-def" id="w-modal-def"></div>
+    <div class="stats-row">
+      <div class="stat"><div class="stat-num" id="ws-played">0</div><div class="stat-label">Played</div></div>
+      <div class="stat"><div class="stat-num" id="ws-won">0</div><div class="stat-label">Won</div></div>
+      <div class="stat"><div class="stat-num" id="ws-streak">0</div><div class="stat-label">Streak</div></div>
+    </div>
+    <button class="modal-btn" onclick="wNewGame();document.getElementById('w-end-modal').classList.remove('open');">New Word</button>
+    <button class="modal-btn outline" onclick="document.getElementById('w-end-modal').classList.remove('open')">Close</button>
+  </div>
+</div>
+<div class="modal-overlay" id="w-help">
+  <div class="help-box">
+    <h2>How to Play Wordle</h2>
+    <p>Guess the 5-letter <strong>IP Law term</strong> in 6 tries. Words drawn from Indian & international IPR curriculum.</p>
+    <div class="help-example">
+      <div class="help-tile ht-c">P</div><div class="help-tile ht-e">A</div><div class="help-tile ht-e">T</div><div class="help-tile ht-e">E</div><div class="help-tile ht-e">N</div>
+    </div>
+    <div class="help-label">🟩 <strong>P</strong> is correct and in the right position.</div>
+    <div class="help-example">
+      <div class="help-tile ht-e">B</div><div class="help-tile ht-p">R</div><div class="help-tile ht-e">A</div><div class="help-tile ht-e">N</div><div class="help-tile ht-e">D</div>
+    </div>
+    <div class="help-label">🟧 <strong>R</strong> is in the word but wrong position.</div>
+    <div class="help-example">
+      <div class="help-tile ht-e">C</div><div class="help-tile ht-e">L</div><div class="help-tile ht-a">A</div><div class="help-tile ht-e">I</div><div class="help-tile ht-e">M</div>
+    </div>
+    <div class="help-label">⬛ <strong>A</strong> is not in the word.</div>
+    <p><strong>💡 Hints:</strong> Reveal a hidden vowel or consonant. 2 hints per game — use wisely!</p>
+    <button class="modal-btn" onclick="document.getElementById('w-help').classList.remove('open')" style="margin-top:10px;">Got it!</button>
+  </div>
+</div>
+
+<!-- ═══ CONNECTIONS MODALS ═══ -->
+<div class="modal-overlay" id="c-end-modal">
+  <div class="modal-box">
+    <h2 id="c-modal-title">⚖️ Solved!</h2>
+    <p id="c-modal-sub" style="color:var(--text-muted);font-size:13px;margin:6px 0 14px;font-family:'DM Mono',monospace;"></p>
+    <div id="c-result-groups"></div>
+    <div style="margin-top:16px;">
+      <button class="modal-btn" onclick="connNewGame();document.getElementById('c-end-modal').classList.remove('open');">New Puzzle</button>
+      <button class="modal-btn outline" onclick="document.getElementById('c-end-modal').classList.remove('open')">Close</button>
+    </div>
+  </div>
+</div>
+<div class="modal-overlay" id="c-help">
+  <div class="help-box">
+    <h2>How to Play Connections</h2>
+    <p>Select <strong>4 words</strong> that share a common IPR category or connection. Find all 4 groups to win!</p>
+    <p>Each puzzle has 4 difficulty levels — colours indicate difficulty:</p>
+    <div class="conn-help-demo">
+      <div class="chd-card" style="background:var(--c1);">PATENT</div>
+      <div class="chd-card" style="background:var(--c2);">TRADE MARK</div>
+      <div class="chd-card" style="background:var(--c3);">COPYRIGHT</div>
+      <div class="chd-card" style="background:var(--c4);">GI</div>
+    </div>
+    <p>You have <strong>4 mistakes</strong> allowed. One category may be more tricky than it appears!</p>
+    <div class="help-section">
+      <h3>Tips</h3>
+      <p>• Start with the group you're most confident about.<br>• Watch out for red herrings — words can fit multiple categories superficially!<br>• Use Shuffle to see the words from a fresh perspective.</p>
+    </div>
+    <button class="modal-btn" onclick="document.getElementById('c-help').classList.remove('open')" style="margin-top:10px;">Let's Go!</button>
+  </div>
+</div>
+
+
+
+
+<div id="atlas-screen" style="display:none;">
+<!-- SPLASH -->
+<div id="atlas-splash">
+  <h1>WTO IPR Disputes Atlas</h1>
+  <div id="atlas-splash-rule"></div>
+  <p>Patents &nbsp;&middot;&nbsp; Trademarks &nbsp;&middot;&nbsp; GI &nbsp;&middot;&nbsp; Copyright &nbsp;&middot;&nbsp; Pharma &nbsp;&middot;&nbsp; SEP</p>
+</div>
+
+<div id="atlas-app">
+  <div id="hdr">
+    <button onclick="hideAtlas()" style="background:none;border:1px solid rgba(201,168,76,0.3);color:var(--gold);font-family:'Courier Prime',monospace;font-size:0.5rem;letter-spacing:0.15em;text-transform:uppercase;padding:5px 10px;cursor:pointer;margin-right:10px;transition:background 0.12s;flex-shrink:0;" onmouseover="this.style.background='rgba(201,168,76,0.15)'" onmouseout="this.style.background='none'">← Home</button>
+    <div>
+      <div class="logo-t">WTO IPR Disputes Atlas</div>
+      <div class="logo-s">Verified WTO Dispute Settlement Body Database</div>
+    </div>
+    <div class="hdiv"></div>
+    <div id="cat-row">
+      <div class="chip on" data-c="all"><div class="cdot" style="background:var(--gold)"></div>All Cases</div>
+      <div class="chip" data-c="GI"><div class="cdot" style="background:var(--gi)"></div>GI</div>
+      <div class="chip" data-c="Patent"><div class="cdot" style="background:var(--patent)"></div>Patent</div>
+      <div class="chip" data-c="Trademark"><div class="cdot" style="background:var(--tm)"></div>Trademark</div>
+      <div class="chip" data-c="Copyright"><div class="cdot" style="background:var(--cr)"></div>Copyright</div>
+      <div class="chip" data-c="Pharma"><div class="cdot" style="background:var(--ph)"></div>Pharma</div>
+      <div class="chip" data-c="SEP"><div class="cdot" style="background:var(--sep)"></div>SEP</div>
+    </div>
+    <div class="hstats">
+      <div class="hstat"><b id="h-n">20</b><small>Cases</small></div>
+      <div class="hstat"><b>164</b><small>Members</small></div>
+      <div class="hstat"><b>1994</b><small>TRIPS Est.</small></div>
+    </div>
+  </div>
+
+  <div id="atlas-body">
+    <div id="gw">
+      <canvas id="stars-c"></canvas>
+      <canvas id="gc"></canvas>
+      <div id="globe-loading"><div class="globe-spinner"></div><p>Loading country data...</p></div>
+      <div id="dhint"><p>Drag to rotate &nbsp; Scroll to zoom</p></div>
+      <div id="tip">
+        <div class="t-cat" id="tip-cat"></div>
+        <div class="t-name" id="tip-name"></div>
+        <div class="t-ds" id="tip-ds"></div>
+      </div>
+      <div id="lgd">
+        <h5>IP Category</h5>
+        <div class="lr"><div class="ldot" style="background:var(--gi)"></div>Geographical Indication</div>
+        <div class="lr"><div class="ldot" style="background:var(--patent)"></div>Patent</div>
+        <div class="lr"><div class="ldot" style="background:var(--tm)"></div>Trademark</div>
+        <div class="lr"><div class="ldot" style="background:var(--cr)"></div>Copyright</div>
+        <div class="lr"><div class="ldot" style="background:var(--ph)"></div>Pharma / Access</div>
+        <div class="lr"><div class="ldot" style="background:var(--sep)"></div>Standard Essential Patent</div>
+      </div>
+      <div id="coords"></div>
+      <div id="gbtns">
+        <div class="gbtn" id="zbtn-in">+</div>
+        <div class="gbtn" id="zbtn-out">&#8722;</div>
+        <div class="gbtn" id="zbtn-reset" title="Reset view">&#8635;</div>
+      </div>
+    </div>
+
+    <div id="sb">
+      <div class="sb-head">
+        <h2>WTO Dispute Settlement Body</h2>
+        <p>All cases verified from official WTO DSB records. DS numbers are formal WTO identifiers. Click any marker or row for full legal analysis and verified source links.</p>
+      </div>
+      <div class="sb-search">
+        <input id="srch" type="text" placeholder="Search DS number, country, article, product..." autocomplete="off">
+      </div>
+      <div class="sb-meta" id="sbmeta"><b id="list-n">20</b> disputes displayed</div>
+      <div class="sb-list" id="sb-list"></div>
+      <div id="det">
+        <div id="dethdr">
+          <span class="d-back">Back to list</span>
+          <div id="dclose">x</div>
+        </div>
+        <div id="detbody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════════
+//  SCREEN NAVIGATION (Wordle/Connections)
+// ══════════════════════════════════════════
+
+// ══════════════════════════════════════════
+//  SCREEN NAVIGATION
+// ══════════════════════════════════════════
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ══════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════
+let toastT;
+function showToast(msg, dur=1800) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastT);
+  toastT = setTimeout(()=>el.classList.remove('show'), dur);
+}
+
+// ══════════════════════════════════════════
+//  WORDLE DATA
+// ══════════════════════════════════════════
+const W_WORDS = [
+  // From course outline + expanded IPR vocabulary
+  {w:'BRAND',c:'Trademark',d:'A distinctive sign identifying goods/services of a trader.'},
+  {w:'CLAIM',c:'Patent',d:'A specific assertion of rights in a patent application.'},
+  {w:'GRANT',c:'Patent',d:'Official award of a patent right by the registry.'},
+  {w:'NOVEL',c:'Patent',d:'Newness — a core requirement for patent registration.'},
+  {w:'TRADE',c:'Trade Secret',d:'Commerce; foundation of trade secrets and trademarks.'},
+  {w:'THEFT',c:'Enforcement',d:'Misappropriation of IP or confidential information.'},
+  {w:'WORKS',c:'Copyright',d:'Creative outputs protected under copyright law.'},
+  {w:'MORAL',c:'Copyright',d:'___ rights — personal author rights over a work.'},
+  {w:'AGENT',c:'Procedure',d:'Representative authorised to file IP applications.'},
+  {w:'PRIOR',c:'Patent',d:'___ art — existing knowledge limiting patent claims.'},
+  {w:'SCOPE',c:'General',d:'The extent of protection conferred by an IP right.'},
+  {w:'TITLE',c:'General',d:'Legal ownership; chain of ___ in IP assignments.'},
+  {w:'WAIVE',c:'General',d:'To voluntarily relinquish a known legal right.'},
+  {w:'USAGE',c:'Trademark',d:'Use of a mark in commerce, triggering common-law rights.'},
+  {w:'LAPSE',c:'Procedure',d:'Expiry of an IP right due to non-renewal.'},
+  {w:'INURE',c:'Trademark',d:'To accrue benefit — goodwill inures to the mark owner.'},
+  {w:'LIMIT',c:'General',d:'A boundary on patent claims or copyright duration.'},
+  {w:'PROOF',c:'Enforcement',d:'Evidence required to establish IP ownership or infringement.'},
+  {w:'MARKS',c:'Trademark',d:'Signs used to identify and distinguish a brand.'},
+  {w:'PLANT',c:'Plant IP',d:'___ variety protection — IP right for new plant breeds.'},
+  {w:'SOUND',c:'Trademark',d:'Non-traditional trademark — e.g. a distinctive jingle.'},
+  {w:'RENEW',c:'Procedure',d:'To extend the term of a registered IP right by payment.'},
+  {w:'SWORN',c:'Procedure',d:'___ declaration in patent prosecution proceedings.'},
+  {w:'CEASE',c:'Enforcement',d:'___ and desist — a letter demanding infringement stops.'},
+  {w:'LEGAL',c:'General',d:'Pertaining to law; ___ proceedings in IP courts.'},
+  {w:'LODGE',c:'Procedure',d:'To file or formally submit an IP application.'},
+  {w:'IMAGE',c:'Trademark',d:'A visual mark or logo protected as a trademark.'},
+  {w:'AVOID',c:'Patent',d:'To design around an existing patent — non-infringing design.'},
+  {w:'FORUM',c:'Enforcement',d:'The court or jurisdiction chosen for IP litigation.'},
+  {w:'DRAFT',c:'Procedure',d:'A preliminary version of a patent application or contract.'},
+  {w:'MERIT',c:'Enforcement',d:'The substantive worthiness of an IP claim on its facts.'},
+  {w:'JOINT',c:'Copyright',d:'___ authorship or ___ ownership of IP rights.'},
+  {w:'SERVE',c:'Enforcement',d:'To deliver legal process or ___ notice of infringement.'},
+  {w:'NICHE',c:'Trademark',d:'A specific market segment a trademark may dominate.'},
+  {w:'TRIPS',c:'International',d:'Trade-Related Aspects of Intellectual Property Rights — WTO agreement.'},
+  {w:'WAIPU',c:'International',d:'Related to WIPO — World Intellectual Property Organization.'},
+  {w:'PIRACY',c:'Copyright',d:'Unauthorised reproduction of copyrighted material.'},
+  {w:'DROIT',c:'Copyright',d:'___ moral — French term for moral rights of an author.'},
+  {w:'EXPIRY',c:'Procedure',d:'The date an IP right ceases to have legal effect.'},
+  {w:'INJUN',c:'Enforcement',d:'Short for injunction — a court order to stop infringement.'},
+  {w:'LIBEL',c:'General',d:'Written defamation — sometimes intersects with IP disputes.'},
+  {w:'GLOSS',c:'Trademark',d:'Surface appearance; deceptive ___ can constitute passing off.'},
+  {w:'RATIO',c:'Patent',d:'___ decidendi — the legal reasoning binding in precedent.'},
+  {w:'ROUTE',c:'General',d:'Legal ___ — the procedural path taken to protect IP.'},
+  {w:'RURAL',c:'GI',d:'Geographical Indications often protect rural craft traditions.'},
+  {w:'SPICE',c:'GI',d:'Indian spices like Darjeeling tea are famous GI products.'},
+  {w:'CRAFT',c:'GI',d:'Traditional handicrafts — core subject of GI protection in India.'},
+  {w:'Delhi',c:'Enforcement',d:'Delhi High Court — leading court for IP litigation in India.'},
+  {w:'INDIE',c:'Copyright',d:'Independent creator — holds copyright without label backing.'},
+  {w:'OPERA',c:'Copyright',d:'A musical work; copyrightable as a dramatic musical composition.'},
+  {w:'BERNE',c:'International',d:'___ Convention — foundational copyright treaty of 1886.'},
+  {w:'PARIS',c:'International',d:'___ Convention — oldest IP treaty covering patents & marks.'},
+  {w:'FIXED',c:'Copyright',d:'Copyright subsists when a work is ___ in a tangible form.'},
+  {w:'FIRST',c:'Patent',d:'___ to file — patent system prioritising first applicant.'},
+  {w:'GRACE',c:'Patent',d:'___ period — time after disclosure before prior art applies.'},
+  {w:'CLAIM',c:'Patent',d:'A specific assertion of rights in a patent document.'},
+  {w:'STALE',c:'Enforcement',d:'A ___ claim — one delayed so long equity may bar it.'},
+  {w:'BRIEF',c:'Enforcement',d:'A written legal argument filed before a court in IP cases.'},
+  {w:'AMEND',c:'Procedure',d:'To modify a patent application or trade mark application.'},
+  {w:'APPLY',c:'Procedure',d:'To formally request IP registration from a registry.'},
+  {w:'REPRO',c:'Copyright',d:'Reproduction right — exclusive right of a copyright owner.'},
+  {w:'REMIX',c:'Copyright',d:'A derivative work; may require a licence from the original owner.'},
+  {w:'REUSE',c:'Copyright',d:'Secondary use of protected material — may constitute infringement.'},
+  {w:'PUBLI',c:'Copyright',d:'Publication — the act of making a copyright work available publicly.'},
+  {w:'SUITE',c:'Copyright',d:'A musical ___ — a copyrightable series of connected compositions.'},
+  {w:'NOVEL',c:'Copyright',d:'A literary work of fiction — fully protected by copyright.'},
+  {w:'LYRIC',c:'Copyright',d:'Song words protected as a literary copyright work.'},
+  {w:'SCORE',c:'Copyright',d:'A musical ___ — the written form of a musical composition.'},
+  {w:'GUILD',c:'Copyright',d:'Historical rights societies — precursors to copyright societies.'},
+  {w:'AGENT',c:'Trademark',d:'A ___ of a foreign mark owner who may register in India.'},
+  {w:'SHAPE',c:'Trademark',d:'Three-dimensional shape mark — a type of non-traditional trademark.'},
+  {w:'COLOR',c:'Trademark',d:'Colour trademarks — e.g. Cadbury purple; registrable if distinctive.'},
+  {w:'SMELL',c:'Trademark',d:'Olfactory mark — an emerging non-traditional trademark type.'},
+  {w:'BADGE',c:'Trademark',d:'An emblem or logo functioning as a trademark.'},
+  {w:'LABEL',c:'Trademark',d:'A device mark used on goods to indicate trade origin.'},
+  {w:'DECAL',c:'Trademark',d:'Decorative label; a design element that may be trademarked.'},
+  {w:'LOGOS',c:'Trademark',d:'Plural of logo — graphic marks protected as trademarks.'},
+  {w:'GOODS',c:'Trademark',d:'Products to which a trademark is applied for registration.'},
+  {w:'CLASS',c:'Trademark',d:'Nice Classification ___ — system for categorising TM applications.'},
+  {w:'SERVE',c:'Trademark',d:'___ mark — a mark used in connection with services.'},
+  {w:'FANCY',c:'Trademark',d:'A ___ word mark — inherently distinctive coined term.'},
+  {w:'VALID',c:'Patent',d:'A patent is ___ if it meets novelty, utility & inventive step.'},
+  {w:'CLAIM',c:'Patent',d:'Independent or dependent ___ defining the scope of protection.'},
+  {w:'PRIOR',c:'Patent',d:'___ use — prior commercial use may defeat a patent claim.'},
+  {w:'PRIOR',c:'Patent',d:'___ art search — conducted before filing to assess novelty.'},
+  {w:'COSTS',c:'Enforcement',d:'Legal expenses awarded by a court in IP infringement cases.'},
+  {w:'SEIZE',c:'Enforcement',d:'To confiscate counterfeit goods under an Anton Piller order.'},
+  {w:'ORDER',c:'Enforcement',d:'A court ___ — injunction, seizure, or damages award.'},
+  {w:'FRAUD',c:'Enforcement',d:'Fraudulent registration of IP — a ground for cancellation.'},
+  {w:'ESTOP',c:'Enforcement',d:'Estoppel — a doctrine barring inconsistent IP assertions.'},
+  // GI words
+  {w:'KHADI',c:'GI',d:'Hand-spun fabric from India — a famous GI and cultural mark.'},
+  {w:'DARJI',c:'GI',d:'Traditional artisan tailoring — part of Indian craft heritage.'},
+  {w:'IKAT',c:'GI',d:'Traditional Indian textile technique protected as a GI product.'},
+];
+
+// Deduplicate and filter to exact 5-letter words only
+const W_BANK = W_WORDS.filter((v,i,a)=>v.w.length===5 && a.findIndex(x=>x.w===v.w)===i);
+
+// ══════════════════════════════════════════
+//  WORDLE STATE
+// ══════════════════════════════════════════
+let wTarget, wRow, wCol, wOver, wBoard, wKeyStates;
+let wHintsUsed=0;
+let wStats = JSON.parse(localStorage.getItem('vinaya_w_stats')||'{"p":0,"w":0,"s":0}');
+const WKB = [['Q','W','E','R','T','Y','U','I','O','P'],['A','S','D','F','G','H','J','K','L'],['ENTER','Z','X','C','V','B','N','M','⌫']];
+
+function wNewGame() {
+  wTarget = W_BANK[Math.floor(Math.random()*W_BANK.length)];
+  wRow=0; wCol=0; wOver=false; wHintsUsed=0;
+  wBoard=Array(6).fill(null).map(()=>Array(5).fill(''));
+  wKeyStates={};
+  document.getElementById('hint-panel').classList.remove('open');
+  document.getElementById('hint-reveal').classList.remove('show');
+  document.getElementById('hints-used-label').textContent='';
+  document.getElementById('hint-toggle-btn').disabled=false;
+  buildWGrid(); buildWKB();
+}
+
+function buildWGrid() {
+  const g=document.getElementById('grid'); g.innerHTML='';
+  for(let r=0;r<6;r++) for(let c=0;c<5;c++){
+    const t=document.createElement('div'); t.classList.add('tile'); t.id=`t-${r}-${c}`; g.appendChild(t);
+  }
+}
+function wTile(r,c){return document.getElementById(`t-${r}-${c}`);}
+function buildWKB(){
+  [['wkb-r1','wkb-r2','wkb-r3']].flat().forEach((id,i)=>{
+    const row=document.getElementById(['wkb-r1','wkb-r2','wkb-r3'][i]); row.innerHTML='';
+    WKB[i].forEach(k=>{
+      const b=document.createElement('button'); b.classList.add('key');
+      if(k==='ENTER'||k==='⌫') b.classList.add('wide');
+      b.textContent=k; b.id=`wk-${k}`;
+      b.addEventListener('click',()=>wHandleKey(k)); row.appendChild(b);
+    });
+  });
+}
+function wUpdateKey(l,s){
+  const el=document.getElementById(`wk-${l}`); if(!el) return;
+  const p={correct:3,present:2,absent:1};
+  if((p[s]||0)>(p[wKeyStates[l]]||0)){
+    if(wKeyStates[l]) el.classList.remove(wKeyStates[l]);
+    el.classList.add(s); wKeyStates[l]=s;
+  }
+}
+
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('wordle-screen').classList.contains('active') && !e.ctrlKey && !e.metaKey){
+    const k=e.key.toUpperCase();
+    if(k==='ENTER') wHandleKey('ENTER');
+    else if(k==='BACKSPACE') wHandleKey('⌫');
+    else if(/^[A-Z]$/.test(k)) wHandleKey(k);
+  }
+});
+
+function wHandleKey(k) {
+  if(wOver) return;
+  if(k==='⌫'){if(wCol>0){wCol--;wBoard[wRow][wCol]='';const t=wTile(wRow,wCol);t.textContent='';t.classList.remove('filled');}}
+  else if(k==='ENTER') wSubmit();
+  else if(/^[A-Z]$/.test(k)&&wCol<5){wBoard[wRow][wCol]=k;const t=wTile(wRow,wCol);t.textContent=k;t.classList.add('filled');wCol++;}
+}
+
+function wSubmit() {
+  if(wCol<5){showToast('Not enough letters'); wShakeRow(wRow); return;}
+  const guess=wBoard[wRow].join('');
+  const result=wEval(guess,wTarget.w);
+  wRevealRow(wRow,result,()=>{
+    const won=result.every(r=>r==='correct');
+    if(won){wStats.p++;wStats.w++;wStats.s++;localStorage.setItem('vinaya_w_stats',JSON.stringify(wStats));
+      setTimeout(()=>{wBounceRow(wRow);setTimeout(()=>wEndModal(true),400);},200); wOver=true;
+    } else if(wRow===5){wStats.p++;wStats.s=0;localStorage.setItem('vinaya_w_stats',JSON.stringify(wStats));wOver=true;setTimeout(()=>wEndModal(false),500);}
+    wRow++;wCol=0;
+  });
+}
+
+function wEval(guess,target){
+  const res=Array(5).fill('absent'),tU=Array(5).fill(false),gU=Array(5).fill(false);
+  for(let i=0;i<5;i++) if(guess[i]===target[i]){res[i]='correct';tU[i]=gU[i]=true;}
+  for(let i=0;i<5;i++){if(gU[i]) continue; for(let j=0;j<5;j++){if(!tU[j]&&guess[i]===target[j]){res[i]='present';tU[j]=true;break;}}}
+  return res;
+}
+
+function wRevealRow(row,result,cb){
+  let done=0;
+  for(let c=0;c<5;c++){
+    const t=wTile(row,c); const delay=c*120;
+    setTimeout(()=>{
+      t.classList.add('flip');
+      setTimeout(()=>{t.classList.add(result[c]);wUpdateKey(wBoard[row][c],result[c]);},250);
+      setTimeout(()=>{t.classList.remove('flip');if(++done===5&&cb)cb();},500);
+    },delay);
+  }
+}
+function wShakeRow(row){for(let c=0;c<5;c++){const t=wTile(row,c);t.classList.add('shake');t.addEventListener('animationend',()=>t.classList.remove('shake'),{once:true});}}
+function wBounceRow(row){for(let c=0;c<5;c++) setTimeout(()=>{const t=wTile(row,c);t.classList.add('bounce');t.addEventListener('animationend',()=>t.classList.remove('bounce'),{once:true});},c*80);}
+
+function wEndModal(won){
+  const titles=won?['🎉 Brilliant!','⚖️ Masterful!','📜 Excellent!','🏅 Spot On!']:['⚖️ Game Over','📋 Tough One!'];
+  document.getElementById('w-modal-title').textContent=titles[Math.floor(Math.random()*titles.length)];
+  document.getElementById('w-modal-word').textContent=wTarget.w;
+  document.getElementById('w-modal-def').textContent=`[${wTarget.c}] ${wTarget.d}`;
+  document.getElementById('ws-played').textContent=wStats.p;
+  document.getElementById('ws-won').textContent=wStats.w;
+  document.getElementById('ws-streak').textContent=wStats.s;
+  document.getElementById('w-end-modal').classList.add('open');
+}
+function wShowStats(){
+  document.getElementById('w-modal-title').textContent='📊 Your Stats';
+  document.getElementById('w-modal-word').textContent='';
+  document.getElementById('w-modal-def').textContent='';
+  document.getElementById('ws-played').textContent=wStats.p;
+  document.getElementById('ws-won').textContent=wStats.w;
+  document.getElementById('ws-streak').textContent=wStats.s;
+  document.getElementById('w-end-modal').classList.add('open');
+}
+
+function toggleHint(){document.getElementById('hint-panel').classList.toggle('open');}
+function useHint(type){
+  if(wHintsUsed>=2){showToast('No hints left!');return;}
+  const V=['A','E','I','O','U'];
+  const pool=[...new Set(wTarget.w.split('').filter(l=>type==='vowel'?V.includes(l):!V.includes(l)))];
+  const cands=pool.filter(l=>wKeyStates[l]!=='correct'&&wKeyStates[l]!=='present');
+  if(!cands.length){showToast(`No hidden ${type}s to reveal!`);return;}
+  wHintsUsed++;
+  const chosen=cands[Math.floor(Math.random()*cands.length)];
+  const rv=document.getElementById('hint-reveal');
+  rv.textContent=`🔍 The word contains "${chosen}"`;
+  rv.classList.add('show');
+  const lbl=document.getElementById('hints-used-label');
+  lbl.textContent=`${wHintsUsed}/2 hints used · ${2-wHintsUsed} remaining`;
+  if(wHintsUsed>=2) document.getElementById('hint-toggle-btn').disabled=true;
+}
+
+// ══════════════════════════════════════════
+//  CONNECTIONS DATA
+// ══════════════════════════════════════════
+const CONN_PUZZLES = [
+  {
+    title: "IPR Fundamentals",
+    groups: [
+      {
+        cat: "Types of Intellectual Property",
+        diff: 0,
+        words: ["PATENT", "TRADEMARK", "COPYRIGHT", "GI"]
+      },
+      {
+        cat: "Paris Convention Subject Matter",
+        diff: 1,
+        words: ["INVENTION", "MARK", "DESIGN", "UTILITY MODEL"]
+      },
+      {
+        cat: "Requirements for Patent Grant",
+        diff: 2,
+        words: ["NOVELTY", "UTILITY", "INVENTIVE STEP", "DISCLOSURE"]
+      },
+      {
+        cat: "TRIPS Agreement Obligations",
+        diff: 3,
+        words: ["ENFORCEMENT", "NATIONAL TREATMENT", "MFN", "TRANSITION"]
+      }
+    ]
+  },
+  {
+    title: "Trademark Law",
+    groups: [
+      {
+        cat: "Types of Trademarks",
+        diff: 0,
+        words: ["WORD MARK", "LOGO", "SHAPE MARK", "SOUND MARK"]
+      },
+      {
+        cat: "Grounds for TM Refusal",
+        diff: 1,
+        words: ["DESCRIPTIVE", "DECEPTIVE", "GENERIC", "SCANDALOUS"]
+      },
+      {
+        cat: "Trademark Infringement Remedies",
+        diff: 2,
+        words: ["INJUNCTION", "DAMAGES", "ACCOUNT OF PROFITS", "DELIVERY UP"]
+      },
+      {
+        cat: "Distinctiveness Spectrum (TM Law)",
+        diff: 3,
+        words: ["FANCIFUL", "ARBITRARY", "SUGGESTIVE", "DESCRIPTIVE"]
+      }
+    ]
+  },
+  {
+    title: "Copyright Concepts",
+    groups: [
+      {
+        cat: "Works Protected by Copyright",
+        diff: 0,
+        words: ["NOVEL", "FILM", "SOFTWARE", "PAINTING"]
+      },
+      {
+        cat: "Rights of a Copyright Owner",
+        diff: 1,
+        words: ["REPRODUCTION", "ADAPTATION", "BROADCAST", "PERFORMANCE"]
+      },
+      {
+        cat: "Exceptions to Copyright",
+        diff: 2,
+        words: ["FAIR DEALING", "EDUCATION", "PARODY", "REPORTING"]
+      },
+      {
+        cat: "Moral Rights of an Author",
+        diff: 3,
+        words: ["PATERNITY", "INTEGRITY", "DISCLOSURE", "WITHDRAWAL"]
+      }
+    ]
+  },
+  {
+    title: "Patent Procedure",
+    groups: [
+      {
+        cat: "Stages in Patent Prosecution",
+        diff: 0,
+        words: ["FILING", "EXAMINATION", "OPPOSITION", "GRANT"]
+      },
+      {
+        cat: "Types of Patent Claims",
+        diff: 1,
+        words: ["PRODUCT", "PROCESS", "APPARATUS", "COMPOSITION"]
+      },
+      {
+        cat: "Prior Art Sources",
+        diff: 2,
+        words: ["PUBLICATION", "PRIOR USE", "ORAL DISCLOSURE", "PATENT"]
+      },
+      {
+        cat: "Non-Patentable Subject Matter (India)",
+        diff: 3,
+        words: ["DISCOVERY", "ALGORITHM", "BUSINESS METHOD", "PLANT VARIETY"]
+      }
+    ]
+  },
+  {
+    title: "Indian IP Statutes",
+    groups: [
+      {
+        cat: "Year of Enactment — Match the Act",
+        diff: 0,
+        words: ["PATENTS ACT 1970", "COPYRIGHT ACT 1957", "TM ACT 1999", "DESIGNS ACT 2000"]
+      },
+      {
+        cat: "Authorities Under Indian IP Law",
+        diff: 1,
+        words: ["CGPDTM", "COPYRIGHT BOARD", "IPAB", "HIGH COURT"]
+      },
+      {
+        cat: "Acts Protecting Traditional Knowledge",
+        diff: 2,
+        words: ["GI ACT 1999", "PPVFR ACT 2001", "BIODIVERSITY ACT", "SICLDA 2000"]
+      },
+      {
+        cat: "Compulsory Licensing Grounds (India)",
+        diff: 3,
+        words: ["REASONABLY REQUIRED", "AFFORDABLE PRICE", "WORKED IN INDIA", "PUBLIC INTEREST"]
+      }
+    ]
+  },
+  {
+    title: "International IP Treaties",
+    groups: [
+      {
+        cat: "WIPO-Administered Treaties",
+        diff: 0,
+        words: ["BERNE", "PARIS", "PCT", "MADRID"]
+      },
+      {
+        cat: "Treaties on Classification",
+        diff: 1,
+        words: ["NICE", "VIENNA", "LOCARNO", "IPC"]
+      },
+      {
+        cat: "Digital/Internet IP Treaties",
+        diff: 2,
+        words: ["WCT", "WPPT", "MARRAKESH", "BEIJING"]
+      },
+      {
+        cat: "Bilateral/Regional IP Agreements",
+        diff: 3,
+        words: ["RCEP", "CETA", "EUIPO", "OAPI"]
+      }
+    ]
+  },
+  {
+    title: "Geographical Indications",
+    groups: [
+      {
+        cat: "Famous Indian GI Products",
+        diff: 0,
+        words: ["DARJEELING TEA", "KANJIVARAM SILK", "BASMATI RICE", "KOLHAPURI CHAPPAL"]
+      },
+      {
+        cat: "Elements of a GI Registration",
+        diff: 1,
+        words: ["GEOGRAPHICAL ORIGIN", "PRODUCER", "AUTHORISED USER", "REGISTRY"]
+      },
+      {
+        cat: "GI vs Trademark Distinctions",
+        diff: 2,
+        words: ["COLLECTIVE SIGN", "NO OWNER", "PROTECTS REGION", "INALIENABLE"]
+      },
+      {
+        cat: "International GI Protection Regimes",
+        diff: 3,
+        words: ["LISBON SYSTEM", "TRIPS ART 22", "TRIPS ART 23", "BILATERAL DEALS"]
+      }
+    ]
+  },
+  {
+    title: "Enforcement & Remedies",
+    groups: [
+      {
+        cat: "Civil Remedies in IP Cases",
+        diff: 0,
+        words: ["INJUNCTION", "DAMAGES", "RENDITION", "SEIZURE"]
+      },
+      {
+        cat: "Criminal Offences Under Indian IP Law",
+        diff: 1,
+        words: ["COUNTERFEITING", "PIRACY", "FALSE TRADE DESCRIPTION", "PASSING OFF"]
+      },
+      {
+        cat: "Border Measures in IP Enforcement",
+        diff: 2,
+        words: ["CUSTOMS DETENTION", "SUSPENSION OF RELEASE", "DESTRUCTION", "BOND"]
+      },
+      {
+        cat: "Defences to IP Infringement",
+        diff: 3,
+        words: ["FAIR USE", "EXHAUSTION", "PRIOR USE", "INNOCENT INFRINGER"]
+      }
+    ]
+  }
+];
+
+// ══════════════════════════════════════════
+//  CONNECTIONS STATE
+// ══════════════════════════════════════════
+let cPuzzle, cCards, cSelected, cSolved, cMistakes, cGameOver;
+
+function connNewGame() {
+  cPuzzle = CONN_PUZZLES[Math.floor(Math.random()*CONN_PUZZLES.length)];
+  cSelected = [];
+  cSolved = [];
+  cMistakes = 0;
+  cGameOver = false;
+
+  // Build flat card list
+  cCards = [];
+  cPuzzle.groups.forEach(g => {
+    g.words.forEach(w => cCards.push({word:w, diff:g.diff, cat:g.cat, solved:false}));
+  });
+  connShuffle(true);
+
+  // Reset mistakes UI
+  for(let i=0;i<4;i++) document.getElementById(`md${i}`).classList.remove('used');
+
+  document.getElementById('solved-groups').innerHTML='';
+  document.getElementById('c-submit-btn').disabled=true;
+  document.getElementById('c-deselect-btn').disabled=true;
+  renderConnGrid();
+}
+
+function connShuffle(init=false) {
+  const unsolved = cCards.filter(c=>!c.solved);
+  for(let i=unsolved.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[unsolved[i],unsolved[j]]=[unsolved[j],unsolved[i]];}
+  // Rebuild cCards with solved ones at front, unsolved shuffled
+  cCards = [...cCards.filter(c=>c.solved), ...unsolved];
+  if(!init) renderConnGrid();
+}
+
+function renderConnGrid() {
+  const grid = document.getElementById('conn-grid');
+  grid.innerHTML = '';
+  cCards.filter(c=>!c.solved).forEach((card,i) => {
+    const div = document.createElement('div');
+    div.classList.add('conn-card');
+    div.textContent = card.word;
+    div.dataset.word = card.word;
+    if(cSelected.includes(card.word)) div.classList.add('selected');
+    div.addEventListener('click', ()=>connToggle(card.word, div));
+    grid.appendChild(div);
+  });
+}
+
+function connToggle(word, el) {
+  if(cGameOver) return;
+  if(cSelected.includes(word)) {
+    cSelected = cSelected.filter(w=>w!==word);
+    el.classList.remove('selected');
+  } else {
+    if(cSelected.length>=4){showToast('Max 4 selections'); return;}
+    cSelected.push(word);
+    el.classList.add('selected');
+  }
+  document.getElementById('c-submit-btn').disabled = cSelected.length!==4;
+  document.getElementById('c-deselect-btn').disabled = cSelected.length===0;
+}
+
+function connDeselect() {
+  cSelected=[];
+  document.querySelectorAll('.conn-card').forEach(c=>c.classList.remove('selected'));
+  document.getElementById('c-submit-btn').disabled=true;
+  document.getElementById('c-deselect-btn').disabled=true;
+}
+
+function connSubmit() {
+  if(cSelected.length!==4||cGameOver) return;
+  // Check if all 4 belong to same group
+  const matchGroup = cPuzzle.groups.find(g => {
+    return cSelected.every(w=>g.words.includes(w)) && g.words.every(w=>cSelected.includes(w));
+  });
+
+  // Animate cards
+  const selEls = cSelected.map(w=>document.querySelector(`.conn-card[data-word="${CSS.escape(w)}"]`));
+
+  if(matchGroup) {
+    // Correct!
+    selEls.forEach(el=>el&&el.classList.add('correct-anim'));
+    setTimeout(()=>{
+      // Mark as solved
+      cSelected.forEach(w=>{const c=cCards.find(x=>x.word===w); if(c) c.solved=true;});
+      cSolved.push(matchGroup);
+      addSolvedBanner(matchGroup);
+      cSelected=[];
+      renderConnGrid();
+      document.getElementById('c-submit-btn').disabled=true;
+      document.getElementById('c-deselect-btn').disabled=true;
+      if(cSolved.length===4) setTimeout(()=>connEndModal(true),400);
+    },400);
+  } else {
+    // Wrong — check if one away
+    const oneAway = cPuzzle.groups.some(g=>{
+      const matches = cSelected.filter(w=>g.words.includes(w)).length;
+      return matches===3;
+    });
+
+    selEls.forEach(el=>el&&el.classList.add('wrong-anim'));
+    setTimeout(()=>selEls.forEach(el=>el&&el.classList.remove('wrong-anim','selected')),400);
+
+    cMistakes++;
+    if(cMistakes<=4) document.getElementById(`md${cMistakes-1}`).classList.add('used');
+    cSelected=[];
+    document.getElementById('c-submit-btn').disabled=true;
+    document.getElementById('c-deselect-btn').disabled=true;
+
+    setTimeout(()=>{
+      if(oneAway) showToast('One away…',2200);
+      if(cMistakes>=4){cGameOver=true;setTimeout(()=>connEndModal(false),500);}
+    },450);
+
+    renderConnGrid();
+  }
+}
+
+function addSolvedBanner(group) {
+  const sg=document.getElementById('solved-groups');
+  const div=document.createElement('div');
+  div.classList.add('solved-group',`d${group.diff}`);
+  div.innerHTML=`<div class="sg-cat">${group.cat}</div><div class="sg-words">${group.words.join(' · ')}</div>`;
+  sg.appendChild(div);
+}
+
+function connEndModal(won) {
+  document.getElementById('c-modal-title').textContent = won ? '⚖️ Perfectly Connected!' : '📋 Puzzle Complete';
+  document.getElementById('c-modal-sub').textContent = won
+    ? `Solved with ${cMistakes} mistake${cMistakes!==1?'s':''}`
+    : `${4-cMistakes}/4 groups found`;
+
+  const rg = document.getElementById('c-result-groups');
+  rg.innerHTML = '';
+  cPuzzle.groups.forEach(g=>{
+    const div=document.createElement('div');
+    div.classList.add('conn-result-group',`d${g.diff}`);
+    div.innerHTML=`<div><div class="crg-cat">${g.cat}</div><div class="crg-words">${g.words.join(', ')}</div></div>`;
+    rg.appendChild(div);
+  });
+
+  document.getElementById('c-end-modal').classList.add('open');
+}
+
+// ══════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════
+// Show help on first visit
+if(!localStorage.getItem('vinaya_visited')) {
+  localStorage.setItem('vinaya_visited','1');
+  // Will show when user navigates to a game
+}
+
+
+
+
+// ══════════════════════════════════════════
+//  ATLAS NAVIGATION
+// ══════════════════════════════════════════
+function showAtlas() {
+  const atlas = document.getElementById('atlas-screen');
+  atlas.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+  if (!window.atlasInitialized) {
+    window.atlasInitialized = true;
+    atlasInit();
+  } else {
+    if (window._atlasRender) window._atlasRender();
+  }
+}
+
+function hideAtlas() {
+  const atlas = document.getElementById('atlas-screen');
+  atlas.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+// ══════════════════════════════════════════
+//  ATLAS CODE
+// ══════════════════════════════════════════
+function atlasInit() {
+// ================================================================
+// CATEGORY COLORS
+// ================================================================
+const CAT_HEX = {GI:'#29b6f6',Patent:'#ce93d8',Trademark:'#ffb74d',Copyright:'#81c784',Pharma:'#ef9a9a',SEP:'#80deea'};
+const CAT_RGB = {GI:[0.16,0.71,0.96],Patent:[0.81,0.58,0.85],Trademark:[1.0,0.72,0.30],Copyright:[0.51,0.78,0.52],Pharma:[0.94,0.60,0.60],SEP:[0.50,0.87,0.92]};
+const STCLS  = {adopted:'st-ad',agreed:'st-ag',lapsed:'st-lp',consult:'st-co'};
+const STLBL  = {adopted:'Panel Report Adopted',agreed:'Mutually Agreed Solution',lapsed:'Lapsed / Withdrawn',consult:'Consultations / Ongoing'};
+
+// ================================================================
+// DB PLACEHOLDER - will be replaced by Python injection
+// ================================================================
+const DB = [
+  {
+    id:'ds174',cat:'GI',sig:96,flags:'🇺🇸🇦🇺🇪🇺',status:'adopted',
+    name:'EC - Trademarks and Geographical Indications',
+    product:'PDO and PGI Agricultural Products (EC Regulation 2081/92)',
+    ds:'DS174 / DS290',year:'2003-2005',lat:50,lon:10,
+    complainants:'United States (DS174); Australia (DS290)',
+    respondent:'European Communities',forum:'WTO Panel',
+    articles:['TRIPS Art.3','TRIPS Art.4','TRIPS Art.16','TRIPS Art.17','TRIPS Art.24','GATT Art.III:4','GATT Art.XX(d)'],
+    background:'EU Regulation 2081/92 on PDO and PGI protection required third countries to adopt an equivalent GI system and provide reciprocal protection to EC products before non-EC producers could register GIs in the EU. The US (DS174) and Australia (DS290) challenged this as discriminatory against foreign GI holders. Panels established 2 October 2003; Panel Reports circulated 15 March 2005; adopted 20 April 2005.',
+    timeline:[
+      {y:'Jun 1999',t:'US requests first round of consultations with EC.'},
+      {y:'Oct 2003',t:'Panels established for DS174 (US) and DS290 (Australia).'},
+      {y:'Mar 2005',t:'Panel Reports circulated finding multiple TRIPS and GATT violations.'},
+      {y:'Apr 2005',t:'Reports adopted 20 April 2005.'},
+      {y:'Mar 2006',t:'EU replaces Regulation 2081/92 with Regulation 510/2006 to implement rulings.'}
+    ],
+    findings:[
+      'National treatment (TRIPS Art.3.1 and GATT Art.III:4): The equivalence and reciprocity conditions violated national treatment. Requiring non-EC nationals to file applications through their home governments imposed formally less favourable treatment compared to EC nationals who could file directly.',
+      'GI-Trademark conflict (TRIPS Art.16.1 and Art.17): TRIPS Art.16.1 obliges Members to make exclusive trademark rights available, including against GI use. The EC Regulation was found inconsistent with Art.16.1 but ultimately justified under Art.17 as a limited exception to trademark rights.',
+      'Scope of Art.24.3: The grandfather clause protects individual pre-existing GIs, not entire systems of GI protection. It cannot justify a GI registration regime inconsistent with TRIPS.',
+    ],
+    outcome:'EU required to amend Regulation 2081/92. Replaced by Regulation 510/2006 allowing direct non-EC registration. The ruling established that TRIPS Art.3.1 national treatment applies to GI protection systems and that Art.24.3 cannot grandfather an entire regime.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS174)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds174_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS290)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds290_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS174)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds174sum_e.pdf'},
+      {type:'sch',label:'Gangjee: Conflicts between Trademarks and GIs (Chicago-Kent Law Review, 2007)',url:'https://studentorgs.kentlaw.iit.edu/cklawreview/wp-content/uploads/sites/3/vol82no3/Gangjee.pdf'},
+      {type:'wto',label:'WTO News: Panel Reports on DS174/DS290 (Mar 2005)',url:'https://www.wto.org/english/news_e/news05_e/panelreport_174_290_e.htm'},
+    ]
+  },
+  {
+    id:'ds435',cat:'GI',sig:94,flags:'🇭🇳🇩🇴🇨🇺🇮🇩🇦🇺',status:'adopted',
+    name:'Australia - Tobacco Plain Packaging',
+    product:'Tobacco Products and Packaging (Trade Dress, GI and TBT)',
+    ds:'DS435 / DS441 / DS458 / DS467',year:'2013-2020',lat:-25,lon:133,
+    complainants:'Honduras (DS435); Dominican Republic (DS441); Cuba (DS458); Indonesia (DS467)',
+    respondent:'Australia',forum:'WTO Panel and Appellate Body',
+    articles:['TRIPS Art.15.4','TRIPS Art.16.1','TRIPS Art.20','TRIPS Art.22.2(b)','TRIPS Art.24.3','TBT Art.2.2','GATT Art.IX:4'],
+    background:"Australia's Tobacco Plain Packaging Act 2011 mandated uniform olive-drab packaging removing all brand trade dress. Panels established 2013-2014. Panel Reports circulated 28 June 2018. AB Report circulated 9 June 2020. Adopted 27 August 2018 (DS458, DS467) and 29 June 2020 (DS435, DS441). A separate Ukraine complaint (DS434) lapsed 30 May 2016.",
+    timeline:[
+      {y:'Sep 2013',t:'Panel established for DS435 (Honduras).'},
+      {y:'Mar-Apr 2014',t:'Panels established for DS441, DS458, and DS467.'},
+      {y:'Jun 2018',t:'Panel Reports circulated. Australia prevails on all claims.'},
+      {y:'Jun 2020',t:'AB Reports circulated and adopted, upholding Panel.'}
+    ],
+    findings:[
+      'TBT Art.2.2: TPP measures make a meaningful contribution to public health. Complainants failed to show any alternative was both less trade-restrictive and equally effective.',
+      'TRIPS Art.16.1 - No affirmative use right: TRIPS confers only the right to prevent unauthorised third-party use. There is no positive affirmative right to use a registered trademark. Landmark ruling.',
+      'TRIPS Art.20 - Unjustifiable encumbrance: TPP measures do not unjustifiably encumber trademark use. Examination of alternatives is not a mandatory step in the Art.20 analysis.',
+    ],
+    outcome:'Australia prevails comprehensively. Landmark ruling confirming no affirmative trademark use right under TRIPS. Multiple countries enacted similar regimes citing this decision. Defines the limits of the TRIPS Art.20 test and opens policy space for public health measures affecting trademarks.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS435)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds435_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS441)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds441_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS458)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds458_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS467)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds467_e.htm'},
+      {type:'sch',label:'WTO Case Summary: Australia Plain Packaging (wto.org)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds435sum_e.pdf'},
+    ]
+  },
+  {
+    id:'ds176',cat:'Trademark',sig:88,flags:'🇪🇺🇺🇸',status:'adopted',
+    name:'United States - Section 211 Omnibus Appropriations Act',
+    product:'Trademarks and Trade Names (Havana Club Rum)',
+    ds:'DS176',year:'2000-2002',lat:38,lon:-97,
+    complainants:'European Communities',
+    respondent:'United States',forum:'WTO Panel and Appellate Body',
+    articles:['TRIPS Art.2','TRIPS Art.3','TRIPS Art.4','TRIPS Art.15','TRIPS Art.16.1','TRIPS Art.42','Paris Conv. Art.6quinquies','Paris Conv. Art.8'],
+    background:"Section 211 of the US Omnibus Appropriations Act 1998 prohibited registration of trademarks related to Cuban-confiscated businesses without the original owner's consent. The EU challenged this on behalf of Pernod Ricard. Panel established 26 September 2000. AB Report 2 January 2002. Adopted 1 February 2002.",
+    timeline:[
+      {y:'Sep 2000',t:'Panel established.'},
+      {y:'Aug 2001',t:'Panel Report circulated.'},
+      {y:'Jan 2002',t:'AB Report circulated, modifying Panel on national treatment, MFN, and trade names.'},
+      {y:'Feb 2002',t:'AB Report adopted 1 February 2002.'}
+    ],
+    findings:[
+      'National treatment (TRIPS Art.3.1): AB reversed the Panel. Section 211(a)(2) violated national treatment for Cuban national successors-in-interest who faced extra procedural hurdles unavailable to non-Cuban nationals.',
+      'MFN (TRIPS Art.4): Sections 211(a)(2) and (b) violated MFN since the disadvantage applied specifically to Cuban nationals and not other WTO Members.',
+      'Trade names under TRIPS: AB reversed the Panel. TRIPS covers trade names because Paris Convention Art.8 is incorporated by TRIPS Art.2.1. Same national treatment and MFN violations found for trade names.',
+    ],
+    outcome:'US found to violate national treatment and MFN for Cuban national trademark owners. Established that TRIPS covers trade names through Art.2.1 incorporation of Paris Convention Art.8. The Havana Club trademark dispute continues in US domestic courts.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS176)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds176_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS176)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds176sum_e.pdf'},
+      {type:'sch',label:'Abbott: WTO Dispute Settlement Practice Relating to TRIPS (SSRN)',url:'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1920816'},
+    ]
+  },
+  {
+    id:'ds160',cat:'Copyright',sig:83,flags:'🇪🇺🇺🇸',status:'adopted',
+    name:'United States - Section 110(5) of the Copyright Act',
+    product:'Copyright in Musical Works - Business Establishment Exemptions',
+    ds:'DS160',year:'1999-2001',lat:37,lon:-96,
+    complainants:'European Communities',
+    respondent:'United States',forum:'WTO Panel',
+    articles:['TRIPS Art.9.1','TRIPS Art.13','Berne Conv. Art.11(1)','Berne Conv. Art.11bis(1)'],
+    background:"The EC challenged two exemptions in US Copyright Act Section 110(5): (i) the 'homestyle exemption' (s.110(5)(A)) for single home-type apparatus in public establishments; and (ii) the 'business exemption' (s.110(5)(B)) permitting small restaurants and bars to play radio and TV music without licensing fees. Panel established 26 May 1999. Report circulated 15 June 2000. Adopted 27 July 2000.",
+    timeline:[
+      {y:'May 1999',t:'Panel established.'},
+      {y:'Jun 2000',t:'Panel Report circulated with split findings on the two exemptions.'},
+      {y:'Jul 2000',t:'Report adopted 27 July 2000.'},
+      {y:'Jun 2003',t:'US and EC agree Memorandum of Understanding on compensation.'}
+    ],
+    findings:[
+      'TRIPS Art.13 three-part test: Exceptions must be (i) confined to certain special cases; (ii) not conflict with normal exploitation; (iii) not unreasonably prejudice the right holder. All three conditions are cumulative.',
+      'Homestyle exemption (s.110(5)(A)): Consistent with TRIPS Art.13 and Berne Convention. Sufficiently confined to special cases; does not unreasonably prejudice legitimate interests.',
+      "Business exemption (s.110(5)(B)): Inconsistent with TRIPS Art.13. Covered approximately 70% of eating and drinking establishments - far too broad to be a 'special case.' Normal exploitation conflicted; legitimate interests unreasonably prejudiced.",
+    ],
+    outcome:'Business exemption struck down; homestyle exemption upheld. US and EC agreed on annual compensation payments rather than legislative amendment in June 2003. Business exemption remains in US law. First major WTO ruling applying the TRIPS Art.13 three-part test to copyright exceptions.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS160)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds160_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS160)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds160sum_e.pdf'},
+      {type:'sch',label:'WTO Analytical Index: TRIPS Agreement (Art.13 analysis)',url:'https://www.wto.org/english/res_e/publications_e/ai17_e/trips_art13_jur.pdf'},
+    ]
+  },
+  {
+    id:'ds362',cat:'Copyright',sig:85,flags:'🇺🇸🇨🇳',status:'adopted',
+    name:'China - Measures Affecting IP Rights Enforcement',
+    product:'Copyright and Trademark Enforcement (Criminal Thresholds and Customs)',
+    ds:'DS362',year:'2007-2009',lat:36,lon:105,
+    complainants:'United States',
+    respondent:'China',forum:'WTO Panel',
+    articles:['TRIPS Art.9.1','TRIPS Art.41','TRIPS Art.46','TRIPS Art.59','TRIPS Art.61','Berne Conv. Art.5(1)','Berne Conv. Art.17'],
+    background:'The US challenged three Chinese measures: (i) criminal law thresholds for IP infringement excluding commercially significant conduct; (ii) customs regulations permitting auction of seized infringing goods after trademark removal; and (iii) Copyright Law Art.4 denying copyright protection to works not approved for distribution in China. Panel established 25 September 2007. Report circulated 13 November 2008. Adopted 20 March 2009.',
+    timeline:[
+      {y:'Sep 2007',t:'Panel established following US consultations request.'},
+      {y:'Nov 2008',t:'Panel Report circulated covering three challenged measures.'},
+      {y:'Mar 2009',t:'Report adopted 20 March 2009.'},
+      {y:'2010',t:'China amends Copyright Law and Customs Regulations to implement rulings.'}
+    ],
+    findings:[
+      "TRIPS Art.61 - Criminal thresholds: 'Commercial scale' means magnitude of typical commercial activity for a given product in a given market. China's fixed numerical thresholds not per se inconsistent. US evidence inadequate to show excluded conduct actually met the commercial scale standard.",
+      "TRIPS Art.59 - Customs disposition: China's practice of auctioning confiscated goods after simple trademark removal in more than exceptional cases is inconsistent with Art.59. The provision requires preventing infringing goods from re-entering commerce.",
+      "TRIPS Art.9.1 and Berne Art.5(1): China may restrict distribution of works under Berne Art.17 but cannot deny copyright protection to prohibited works entirely. Denying copyright to banned works violates Berne Art.5(1) as incorporated by TRIPS Art.9.1.",
+    ],
+    outcome:'China required to: retain (not auction) seized infringing goods beyond exceptional cases; provide copyright to all works regardless of authorisation status. China amended Copyright Law and Customs Regulations. Ruling established TRIPS enforcement obligations extend regardless of domestic content regulation.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS362)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds362_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS362)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds362sum_e.pdf'},
+      {type:'sch',label:'Zuo: WTO US-China Dispute DS362 - Criminal Protection of IP Rights (SSRN)',url:'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=2825003'},
+      {type:'sch',label:'Creemers: Effects of WTO Case DS362 on Audiovisual Piracy in China (SSRN)',url:'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1434914'},
+    ]
+  },
+  {
+    id:'ds36',cat:'Pharma',sig:61,flags:'🇺🇸🇵🇰',status:'agreed',
+    name:'Pakistan - Patent Protection for Pharmaceutical Products',
+    product:'Pharmaceutical and Agricultural Chemical Patents - Mailbox System',
+    ds:'DS36',year:'1996-1997',lat:30,lon:69,
+    complainants:'United States',
+    respondent:'Pakistan',forum:'Consultations - Mutually Agreed Solution',
+    articles:['TRIPS Art.27','TRIPS Art.65','TRIPS Art.70.8','TRIPS Art.70.9'],
+    background:'The US alleged Pakistan lacked: (i) patent protection for pharmaceutical and agricultural chemical products; and (ii) a system permitting filing of patent applications during the transition period (the mailbox under TRIPS Art.70.8) and a mechanism to grant exclusive marketing rights (EMR) under Art.70.9. Consultations requested 30 April 1996. Mutually agreed solution notified 28 February 1997.',
+    timeline:[
+      {y:'Apr 1996',t:'US requests consultations citing TRIPS Arts.27, 65, 70.8, and 70.9.'},
+      {y:'Jul 1996',t:'Panel requested. DSB declines to establish panel on Pakistan\'s formal objection.'},
+      {y:'Feb 1997',t:'Mutually agreed solution notified to DSB 28 February 1997.'}
+    ],
+    findings:['No panel findings. Case resolved bilaterally. Pakistan committed to implementing a TRIPS-compliant patent mailbox system and exclusive marketing rights mechanism within its transition period obligations.'],
+    outcome:'Mutually agreed solution. Pakistan implemented the required mailbox and EMR system. One of the earliest disputes testing developing country TRIPS transition period obligations under Arts.65 and 70.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS36)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds36_e.htm'},
+      {type:'sch',label:'Abbott: WTO Dispute Settlement Practice Relating to TRIPS (SSRN)',url:'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1920816'},
+    ]
+  },
+  {
+    id:'ds37',cat:'Patent',sig:54,flags:'🇺🇸🇵🇹',status:'agreed',
+    name:'Portugal - Patent Protection under the Industrial Property Act',
+    product:'Industrial Patents - Minimum Patent Term (TRIPS Art.33)',
+    ds:'DS37',year:'1996',lat:39,lon:-9,
+    complainants:'United States',
+    respondent:'Portugal',forum:'Consultations - Mutually Agreed Solution',
+    articles:['TRIPS Art.33','TRIPS Art.65','TRIPS Art.70'],
+    background:"The US challenged Portugal's Industrial Property Act on the grounds that its provisions on existing patents did not conform with TRIPS Art.33, which requires a minimum patent term of 20 years from the filing date. Consultations requested 30 April 1996. Mutually agreed solution notified 3 October 1996.",
+    timeline:[
+      {y:'Apr 1996',t:'US requests consultations citing TRIPS Arts.33, 65, and 70.'},
+      {y:'Oct 1996',t:'Mutually agreed solution notified 3 October 1996. Portugal amends Industrial Property Act.'}
+    ],
+    findings:['No panel findings. Portugal agreed to amend its Industrial Property Act to bring patent term provisions into conformity with TRIPS Art.33 (20 years from filing date).'],
+    outcome:'Early TRIPS compliance dispute resolved by bilateral negotiation without litigation. Confirmed that developed country Members were immediately subject to Art.33 minimum term obligations.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS37)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds37_e.htm'},
+    ]
+  },
+  {
+    id:'ds50',cat:'Pharma',sig:92,flags:'🇺🇸🇪🇺🇮🇳',status:'adopted',
+    name:'India - Patent Protection for Pharmaceutical Products (US and EC)',
+    product:'Pharmaceutical Patents - Mailbox System and Exclusive Marketing Rights',
+    ds:'DS50 (US) / DS79 (EC)',year:'1996-1998',lat:22,lon:79,
+    complainants:'United States (DS50); European Communities (DS79)',
+    respondent:'India',forum:'WTO Panel and Appellate Body (DS50); Panel (DS79)',
+    articles:['TRIPS Art.27','TRIPS Art.65','TRIPS Art.70.8','TRIPS Art.70.9'],
+    background:"India relied on TRIPS Art.65 transition period to delay product patent protection until 2005. However, TRIPS Arts.70.8 and 70.9 required immediate establishment of a secure mailbox for patent applications and an exclusive marketing rights (EMR) mechanism. India relied on administrative instructions rather than statutory provisions. DS50 AB Report 19 December 1997; adopted 16 January 1998. DS79 Panel Report adopted 22 September 1998.",
+    timeline:[
+      {y:'Jul 1996',t:'US requests consultations (DS50).'},
+      {y:'Nov 1996',t:'DS50 Panel established.'},
+      {y:'Sep 1997',t:'DS50 Panel Report - India non-compliant on both mailbox and EMR.'},
+      {y:'Dec 1997',t:'AB Report circulated, upholding Panel on both counts.'},
+      {y:'Jan 1998',t:'DS50 adopted 16 January 1998.'},
+      {y:'Sep 1998',t:'DS79 (EC complaint) Panel Report adopted separately.'},
+      {y:'1999',t:'India amends Patents Act to provide statutory mailbox and EMR system.'}
+    ],
+    findings:[
+      "TRIPS Art.70.8 - Mailbox security: India's reliance on administrative instructions lacked adequate legal security. A domestic court could override applications under contradictory provisions of the Patents Act 1970. Art.70.8(a) requires secure statutory means, not merely administrative practice.",
+      'TRIPS Art.70.9 - EMR absence: India had no mechanism in place to grant exclusive marketing rights. The complete absence of an EMR system violated Art.70.9, which required an immediately operative mechanism.',
+    ],
+    outcome:'India amended the Patents Act by 1999 to provide a statutory mailbox and EMR system. Seminal ruling distinguishing secure statutory means from administrative practice. Established that developing country Members cannot rely on administrative measures to fulfil Arts.70.8 and 70.9.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS50)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds50_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS79)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds79_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS50)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds50sum_e.pdf'},
+    ]
+  },
+  {
+    id:'ds114',cat:'Pharma',sig:90,flags:'🇪🇺🇨🇦',status:'adopted',
+    name:'Canada - Patent Protection of Pharmaceutical Products',
+    product:'Generic Drug Manufacturing - Regulatory Review and Stockpiling Exceptions',
+    ds:'DS114',year:'1999-2000',lat:57,lon:-96,
+    complainants:'European Communities',
+    respondent:'Canada',forum:'WTO Panel',
+    articles:['TRIPS Art.27.1','TRIPS Art.28.1','TRIPS Art.30'],
+    background:"Canada's Patent Act contained two exceptions: (i) the 'regulatory review provision' (s.55.2(1)) permitting use of patented compounds for regulatory approval; and (ii) the 'stockpiling provision' (s.55.2(2)) permitting generic manufacturers to stockpile patented drugs in the final six months before patent expiry. The EC challenged both. Panel established 1 February 1999. Report adopted 7 April 2000.",
+    timeline:[
+      {y:'Feb 1999',t:'Panel established.'},
+      {y:'Mar 2000',t:'Panel Report circulated with split findings on the two provisions.'},
+      {y:'Apr 2000',t:'Report adopted 7 April 2000.'}
+    ],
+    findings:[
+      "Stockpiling provision: No limitation on quantity - constitutes substantial curtailment of the patent holder's exclusionary rights. Failed TRIPS Art.30 three-part test: not 'limited' in scope. Inconsistent with Art.28.1.",
+      "Regulatory review provision: Fully justified under TRIPS Art.30. The three-part cumulative test is satisfied: (i) the exception is limited; (ii) does not unreasonably conflict with normal exploitation; (iii) does not unreasonably prejudice the patent owner's legitimate interests when third-party interests are considered.",
+    ],
+    outcome:'Regulatory review (Bolar-type) exception upheld as TRIPS-compliant. Stockpiling exception struck down. Established the definitive three-part test for TRIPS Art.30 patent exceptions. Directly shaped global pharmaceutical patent policy - the ruling underpins Bolar exemptions in dozens of jurisdictions worldwide.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS114)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds114_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS114)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds114sum_e.pdf'},
+      {type:'sch',label:'Towards a Horizontal Standard for Limiting IP Rights - WTO Three-Step Test (SSRN)',url:'https://www.ssrn.com/abstract=1723871'},
+    ]
+  },
+  {
+    id:'ds153',cat:'Pharma',sig:56,flags:'🇨🇦🇦🇺🇪🇺',status:'consult',
+    name:'EC - Patent Protection - Supplementary Protection Certificates',
+    product:'Pharmaceutical Patents - EU SPCs Extending Patent Term',
+    ds:'DS153',year:'1998 to date',lat:48,lon:7,
+    complainants:'Canada; Australia',
+    respondent:'European Communities',forum:'Consultations only',
+    articles:['TRIPS Art.27.1'],
+    background:'Canada challenged EU Council Regulations (EEC) 1768/92 and (EC) 1610/96 on Supplementary Protection Certificates (SPCs), which extend effective patent protection beyond 20 years exclusively for pharmaceutical and plant protection products. Canada argued SPCs discriminate by field of technology contrary to TRIPS Art.27.1. Consultations requested 2 December 1998. No panel ever established.',
+    timeline:[
+      {y:'Dec 1998',t:'Canada requests consultations citing TRIPS Art.27.1.'},
+      {y:'Jan 1999',t:'Australia requests to join consultations.'},
+      {y:'1999 onward',t:'No further proceedings. EU SPC framework continues unchanged.'}
+    ],
+    findings:['No panel findings. The question whether sector-specific patent term extensions constitute field-of-technology discrimination under TRIPS Art.27.1 remains legally unresolved.'],
+    outcome:'No ruling. The EU SPC framework continues. Represents one of the most significant unresolved legal gaps in WTO patent jurisprudence. The Art.27.1 non-discrimination obligation as applied to patent term extension has never been ruled on by a WTO panel.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS153)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds153_e.htm'},
+    ]
+  },
+  {
+    id:'ds171',cat:'Pharma',sig:70,flags:'🇺🇸🇦🇷',status:'agreed',
+    name:'Argentina - Patent Protection for Pharmaceuticals and Test Data',
+    product:'Pharmaceutical Patents, EMR, and Agricultural Chemical Test Data',
+    ds:'DS171',year:'1999-2002',lat:-34,lon:-63,
+    complainants:'United States',
+    respondent:'Argentina',forum:'Consultations - Mutually Agreed Solution',
+    articles:['TRIPS Art.27','TRIPS Art.39.2','TRIPS Art.65','TRIPS Art.70.8','TRIPS Art.70.9'],
+    background:'The US challenged Argentina on: (i) absence of adequate patent protection for pharmaceuticals and absence of an effective EMR mechanism; and (ii) alleged reduction of test data protection for agricultural chemicals below the TRIPS Art.39.2 standard. Closely linked to DS196. Mutually agreed solution notified 31 May 2002.',
+    timeline:[
+      {y:'May 1999',t:'US requests consultations on pharmaceutical patents and EMR compliance.'},
+      {y:'1999-2002',t:'Extended bilateral negotiations.'},
+      {y:'May 2002',t:'Mutually agreed solution notified jointly with DS196.'}
+    ],
+    findings:['No panel findings. First formal invocation of TRIPS Art.39.2 in a WTO dispute context. Raised whether Art.39.2 requires data exclusivity or only protection against unfair commercial use - a North-South divide that remains unresolved.'],
+    outcome:'Mutually agreed solution. Argentina committed to pharmaceutical patent law reform and test data protection consistent with TRIPS Art.39.2. Highlighted Art.39.2 as contested terrain between data exclusivity (US position) and anti-disclosure protection (developing country position).',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS171)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds171_e.htm'},
+    ]
+  },
+  {
+    id:'ds196',cat:'Patent',sig:68,flags:'🇺🇸🇦🇷',status:'agreed',
+    name:'Argentina - Measures Affecting Patents and Test Data Protection',
+    product:'Patents - Comprehensive TRIPS Compliance (Micro-organisms, Process Patents)',
+    ds:'DS196',year:'2000-2002',lat:-34,lon:-55,
+    complainants:'United States',
+    respondent:'Argentina',forum:'Consultations - Mutually Agreed Solution',
+    articles:['TRIPS Art.27','TRIPS Art.28','TRIPS Art.31','TRIPS Art.34','TRIPS Art.39','TRIPS Art.50','TRIPS Art.65','TRIPS Art.70'],
+    background:"A broader companion dispute to DS171. The US alleged Argentina failed to: protect undisclosed test data; correctly apply patentability to micro-organisms; provide all required exclusive patent rights; establish adequate provisional measures; and provide proper compulsory licensing safeguards. Mutually agreed solution notified 31 May 2002 jointly with DS171.",
+    timeline:[
+      {y:'May 2000',t:'US requests consultations on seven categories of alleged TRIPS compliance failures.'},
+      {y:'2000-2002',t:'Extended negotiations covering comprehensive patent law reform.'},
+      {y:'May 2002',t:'Mutually agreed solution notified jointly with DS171.'}
+    ],
+    findings:["No panel findings. Raised novel questions on: patentability of micro-organisms under Art.27.3(b); Art.34 burden of proof shifting in process patent proceedings; scope of Art.50 provisional measure obligations; and Art.31 compulsory licence safeguards."],
+    outcome:'Mutually agreed solution. Argentina committed to comprehensive patent law reform across all seven categories. Demonstrates that TRIPS compliance scrutiny extends beyond formal legislative enactment to cover enforcement mechanisms, procedural safeguards, and compulsory licensing conditions.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS196)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds196_e.htm'},
+    ]
+  },
+  {
+    id:'ds199',cat:'Patent',sig:83,flags:'🇺🇸🇧🇷',status:'agreed',
+    name:'Brazil - Measures Affecting Patent Protection (Local Working)',
+    product:'Industrial Patents - Local Manufacturing Requirement and Compulsory Licensing',
+    ds:'DS199',year:'2000-2001',lat:-15,lon:-51,
+    complainants:'United States',
+    respondent:'Brazil',forum:'Panel Established - Mutually Agreed Solution',
+    articles:['TRIPS Art.27.1','TRIPS Art.28.1','GATT Art.III'],
+    background:"Brazil's Industrial Property Law required patents to be 'worked' in Brazil through local manufacture. Failure to work locally within three years triggered compulsory licensing. The US argued this violated TRIPS Art.27.1 non-discrimination (treating importation differently from local production) and Art.28 exclusive rights. Panel established 1 February 2001. Mutually agreed solution notified 5 July 2001.",
+    timeline:[
+      {y:'May 2000',t:'US requests consultations. India and Japan reserve third-party rights.'},
+      {y:'Jan 2001',t:'Panel established 1 February 2001.'},
+      {y:'Jul 2001',t:'Mutually agreed solution notified 5 July 2001.'},
+      {y:'Nov 2001',t:'Doha Declaration on TRIPS and Public Health issued, influenced by this dispute.'}
+    ],
+    findings:["No panel findings. Raised the unresolved question whether local working requirements violate TRIPS Art.27.1 prohibition on discrimination as to whether products are imported or locally produced. The US acknowledged Brazil's right to issue compulsory licences for public health purposes."],
+    outcome:"Mutually agreed solution. Brazil retained local working provisions. US concession on compulsory licences directly prefigured the Doha Declaration on TRIPS and Public Health (November 2001). The local working question remains the most significant unresolved gap in WTO patent jurisprudence.",
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS199)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds199_e.htm'},
+      {type:'wto',label:'WTO Doha Declaration on TRIPS and Public Health (2001)',url:'https://www.wto.org/english/thewto_e/minist_e/min01_e/mindecl_trips_e.htm'},
+    ]
+  },
+  {
+    id:'ds224',cat:'Patent',sig:66,flags:'🇧🇷🇺🇸🇮🇳',status:'consult',
+    name:'United States - US Patents Code (Bayh-Dole Act)',
+    product:'Federally-Funded Inventions - Domestic Manufacturing Preference',
+    ds:'DS224',year:'2001 to date',lat:41,lon:-100,
+    complainants:'Brazil',
+    respondent:'United States',forum:'Consultations only',
+    articles:['TRIPS Art.27.1','TRIPS Art.28','GATT Art.III','GATT Art.XI','TRIMs Art.2'],
+    background:"Brazil challenged the US Bayh-Dole Act requirement that exclusive licences to use or sell federally-funded inventions in the US may only be granted where products will be 'manufactured substantially in the United States.' Brazil argued this constitutes a local manufacturing condition violating TRIPS Arts.27.1 and 28. India requested to join consultations in February 2001. Never advanced beyond consultations.",
+    timeline:[
+      {y:'Jan 2001',t:'Brazil requests consultations citing TRIPS Arts.27.1, 28, TRIMs Art.2, GATT Arts.III, XI.'},
+      {y:'Feb 2001',t:'India requests to join consultations.'},
+      {y:'2001 onward',t:'No further proceedings. Bayh-Dole provisions continue unamended.'}
+    ],
+    findings:["No panel findings. Raised the unresolved question whether the Bayh-Dole domestic manufacturing preference constitutes a TRIPS Art.27.1 violation. The act underpins US university technology transfer and has generated over USD 1 trillion in economic activity."],
+    outcome:"No ruling. Bayh-Dole domestic manufacturing preference continues unamended. Highlighted that developed countries' own IP frameworks may contain TRIPS-inconsistent provisions. The Art.27.1 local working question raised here parallels the unresolved issue in DS199.",
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS224)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds224_e.htm'},
+    ]
+  },
+  {
+    id:'ds54',cat:'Patent',sig:78,flags:'🇪🇺🇯🇵🇺🇸🇮🇩',status:'adopted',
+    name:'Indonesia - Certain Measures Affecting the Automotive Industry',
+    product:'Automotive Products - Local Content Requirements and National Car Programme',
+    ds:'DS54 / DS55 / DS59 / DS64',year:'1997-1998',lat:-5,lon:117,
+    complainants:'European Communities (DS54/DS55); Japan (DS59); United States (DS64)',
+    respondent:'Indonesia',forum:'WTO Panel (consolidated)',
+    articles:['TRIMs Art.2.1','GATT Art.I:1','GATT Art.III:2','GATT Art.III:4','ASCM Art.5(c)','ASCM Art.6.3(c)'],
+    background:"Indonesia's 1993 Programme provided duty reductions based on local content in vehicle manufacturing. Its 1996 National Car Programme granted luxury tax and duty exemptions exclusively to qualifying domestic vehicles (the Timor car, linked to President Suharto's son). All four complaints consolidated. Panel established 12 June 1997. Report adopted 23 July 1998.",
+    timeline:[
+      {y:'Jun 1997',t:'Consolidated panel established for DS54, DS55, DS59, and DS64.'},
+      {y:'Jul 1998',t:'Panel Report circulated 2 July 1998.'},
+      {y:'Jul 1998',t:'Report adopted 23 July 1998.'},
+      {y:'1999-2000',t:'Indonesia dismantles both programmes following adoption.'}
+    ],
+    findings:[
+      'TRIMs Art.2.1: The 1993 Programme is a trade-related investment measure falling within TRIMs Annex Illustrative List para.1 (local content requirement). Inconsistent with GATT Art.III:4.',
+      'GATT Art.III:2: Imported vehicles taxed at higher rates than like domestic vehicles. Violates both sentences of Art.III:2.',
+      'GATT Art.I:1: Duty and tax exemptions accorded to Korean-origin components (for the Timor/KIA arrangement) not accorded to like products from other WTO Members. MFN violation.',
+      'ASCM Art.5(c): Duty and tax exemptions are specific subsidies causing serious prejudice through significant price undercutting in the Indonesian automotive market.',
+    ],
+    outcome:"Indonesia required to dismantle both programmes. National Car Programme discontinued. Confirmed TRIMs Agreement has independent legal standing. Procedurally significant as the first WTO panel to allow private legal counsel as part of a party's delegation.",
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS54)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds54_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS59)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds59_e.htm'},
+      {type:'wto',label:'WTO One-Page Summary (DS54)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/1pagesum_e/ds54sum_e.pdf'},
+    ]
+  },
+  {
+    id:'ds28',cat:'Copyright',sig:56,flags:'🇺🇸🇪🇺🇯🇵',status:'agreed',
+    name:'Japan - Measures Concerning Sound Recordings',
+    product:'Copyright in Sound Recordings - TRIPS Retroactive Protection (Art.70.2)',
+    ds:'DS28 / DS42',year:'1996-1997',lat:35,lon:138,
+    complainants:'United States (DS28); European Communities (DS42)',
+    respondent:'Japan',forum:'Consultations - Mutually Agreed Solutions',
+    articles:['TRIPS Art.14','TRIPS Art.70.2'],
+    background:'The US (DS28, January 1996) and EC (DS42, February 1996) challenged Japan\'s failure to provide adequate retroactive protection to pre-existing sound recordings under TRIPS Art.14 in conjunction with Art.70.2. Both disputes raised questions about the temporal scope of TRIPS for IP rights pre-existing WTO accession. Both resolved through mutually agreed solutions in 1996-1997.',
+    timeline:[
+      {y:'Jan 1996',t:'US (DS28) requests consultations on Japanese sound recording protection.'},
+      {y:'Feb 1996',t:'EC (DS42) requests consultations on the same subject.'},
+      {y:'1996-1997',t:'Both disputes resolved through mutually agreed solutions.'}
+    ],
+    findings:['No panel findings. Japan committed to extending protection to pre-existing sound recordings consistent with TRIPS Arts.14 and 70.2.'],
+    outcome:'Mutually agreed solutions for both DS28 and DS42. Japan amended the Copyright Act. Early confirmation that TRIPS Art.70.2 retroactivity requirements applied to sound recordings as a category of related rights.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS28)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds28_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS42)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds42_e.htm'},
+    ]
+  },
+  {
+    id:'ds82',cat:'Copyright',sig:58,flags:'🇺🇸🇪🇺🇮🇪',status:'agreed',
+    name:'Ireland - Measures Affecting Copyright and Neighbouring Rights',
+    product:'Copyright Implementation - Computer Program Rental Rights (TRIPS Art.11)',
+    ds:'DS82 / DS86',year:'1997',lat:53,lon:-7,
+    complainants:'United States (DS82); European Communities (DS86)',
+    respondent:'Ireland',forum:'Consultations - Mutually Agreed Solutions',
+    articles:['TRIPS Art.9','TRIPS Art.11','TRIPS Art.14','TRIPS Art.63','TRIPS Art.65','TRIPS Art.70'],
+    background:"The US (DS82, May 1997) and EC (DS86, June 1997) challenged Ireland's failure to fully implement TRIPS copyright and neighbouring rights obligations by the 1 January 1996 deadline. As an EU member state, Ireland was expected to have implemented TRIPS through EU legislation. The complaints focused on Ireland's implementation of computer program rental rights under TRIPS Art.11. Both cases resolved promptly through mutually agreed solutions.",
+    timeline:[
+      {y:'May 1997',t:'US (DS82) requests consultations on Irish TRIPS copyright implementation.'},
+      {y:'Jun 1997',t:'EC (DS86) requests consultations on the same subject.'},
+      {y:'1997',t:'Both disputes resolved through mutually agreed solutions.'}
+    ],
+    findings:['No panel findings. Ireland committed to full TRIPS copyright implementation, including rental rights for computer programs under Art.11 and neighbouring rights under Art.14.'],
+    outcome:"Mutually agreed solutions for DS82 and DS86. Ireland completed TRIPS implementation. Notable as one of the few WTO copyright disputes involving an EU member state's individual compliance obligations rather than EC-level legislation.",
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS82)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds82_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS86)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds86_e.htm'},
+    ]
+  },
+  {
+    id:'ds632',cat:'SEP',sig:95,flags:'🇪🇺🇨🇳🇬🇧🇨🇦🇯🇵',status:'consult',
+    name:'China - Worldwide Licensing Terms for Standard Essential Patents',
+    product:'Standard Essential Patents - FRAND Licensing and Anti-Suit Injunctions (5G/4G/WiFi)',
+    ds:'DS632',year:'2025 to date',lat:34,lon:108,
+    complainants:'European Union',
+    respondent:'China',forum:'Consultations - Panel requested 13 February 2026',
+    articles:['TRIPS Art.1.1','TRIPS Art.2.1','TRIPS Art.28.1','TRIPS Art.28.2','TRIPS Art.44','TRIPS Art.63.3','Paris Conv. Art.4bis'],
+    background:"The EU challenges China's judicial practice whereby Chinese courts issue anti-suit injunctions (ASIs) preventing SEP holders from seeking injunctive relief in foreign jurisdictions, and set global FRAND royalty rates for telecommunications patent portfolios through domestic proceedings. The EU contends this extraterritorial exercise limits patent holders' rights under TRIPS. Consultations requested 20 January 2025. UK, Canada, and Japan joined. Panel requested 13 February 2026 (WT/DS632/5).",
+    timeline:[
+      {y:'Jan 2025',t:'EU requests consultations (20 January 2025).'},
+      {y:'Jan 2025',t:'UK and Canada request to join consultations (31 January 2025).'},
+      {y:'Feb 2025',t:'Japan requests to join consultations (3 February 2025).'},
+      {y:'Feb 2026',t:'EU formally requests establishment of panel (WT/DS632/5, 13 February 2026).'}
+    ],
+    findings:["No panel findings yet. Core questions: (i) Do Chinese ASIs limiting foreign court jurisdiction violate TRIPS Art.28 or Art.44? (ii) Does China's failure to share judicial decisions on SEP licence terms violate TRIPS Art.63.3 transparency? (iii) Can TRIPS compel obligations on territorial scope of IP remedies?"],
+    outcome:'Ongoing. Most significant IP dispute currently before the WTO DSB. Outcome will determine whether TRIPS can regulate the extraterritorial reach of domestic IP court decisions - at the intersection of patent law, telecommunications standards, competition policy, and digital trade.',
+    refs:[
+      {type:'wto',label:'Official WTO Case Page (DS632)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds632_e.htm'},
+      {type:'sch',label:'Litigating Patented Standards: The EU-China WTO Dispute on Anti-Suit Injunctions (SSRN, 2025)',url:'https://papers.ssrn.com/sol3/Delivery.cfm/5394292.pdf?abstractid=5394292&mirid=1'},
+      {type:'sch',label:'Gervais: Compatibility of EU SEP Regulation with TRIPS (SSRN, 2025)',url:'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=5133463'},
+    ]
+  },
+  {
+    id:'ds290b',cat:'GI',sig:75,flags:'🇮🇳🇪🇺🇺🇸',status:'consult',
+    name:'India - GI Protection for Darjeeling Tea and Basmati Rice',
+    product:'Geographical Indications - Tea, Rice (TRIPS Art.23 Extension Debate)',
+    ds:'TRIPS Council Advocacy / Bilateral Enforcement',year:'1999 to date',lat:27,lon:88,
+    complainants:'India (bilateral enforcement)',
+    respondent:'Various third countries',forum:'TRIPS Council and bilateral channels',
+    articles:['TRIPS Art.22','TRIPS Art.23','TRIPS Art.24.9'],
+    background:"India holds GI Registration No. 1 for Darjeeling Tea (registered 2004-05). A central Indian advocacy position at the WTO TRIPS Council is that TRIPS Art.23 additional protection (absolute prohibition on GI term use) should be extended beyond wines and spirits to all products. India has pursued bilateral enforcement of Darjeeling and Basmati names in EU, US, Canadian, and Australian markets. The extension agenda item has remained on the Doha Round agenda since 2001 without resolution.",
+    timeline:[
+      {y:'1999',t:'India raises GI extension for agricultural products at TRIPS Council.'},
+      {y:'2001',t:'Doha Round mandate includes negotiations on GI extension beyond wines and spirits.'},
+      {y:'2004-2005',t:'Darjeeling Tea obtains GI Registration No. 1 under the Indian GI Act.'},
+      {y:'Ongoing',t:'Extension negotiations at TRIPS Council deadlocked. EU markets cleaned up bilaterally. US markets subject only to Art.22 confusion-based protection.'}
+    ],
+    findings:["No WTO panel findings. Illustrates the structural asymmetry in TRIPS GI protection: Art.23 provides absolute protection for wines and spirits while Art.22 provides only confusion-based protection for all other products. The extension debate remains one of the most contested unresolved issues in WTO IP law."],
+    outcome:'No formal WTO ruling. GI extension question unresolved after two decades of TRIPS Council negotiations. India\'s bilateral enforcement has achieved partial success in EU markets. US markets remain subject to the narrower Art.22 confusion-based standard only.',
+    refs:[
+      {type:'wto',label:'WTO TRIPS Council - GI Extension Discussions',url:'https://www.wto.org/english/tratop_e/trips_e/gi_background_e.htm'},
+      {type:'wto',label:'WTO TRIPS Agreement - Articles 22-24 (GI Protection)',url:'https://www.wto.org/english/tratop_e/trips_e/trips_e.htm'},
+    ]
+  },
+  {
+    id:'ds611',cat:'SEP',sig:72,flags:'🇪🇺🇨🇳',status:'adopted',
+    name:'China - Enforcement of IP Rights (Anti-Suit Injunctions Appeal Arbitration)',
+    product:'Standard Essential Patents - Anti-Suit Injunctions (DS611 Appeal Arbitration)',
+    ds:'DS611',year:'2022-2025',lat:32,lon:116,
+    complainants:'European Union',
+    respondent:'China',forum:'WTO Appeal Arbitration under Art.25 DSU (MPIA)',
+    articles:['TRIPS Art.28.1','TRIPS Art.44','TRIPS Art.63.1','TRIPS Art.63.3'],
+    background:"The EU challenged China's practice of issuing anti-suit injunctions (ASIs) preventing SEP holders from seeking injunctive relief in courts outside China for FRAND licensing disputes. The EU and China used the Multi-Party Interim Appeal Arbitration Arrangement (MPIA) as an alternative to the non-functioning WTO Appellate Body. The MPIA Appeal Arbitrator circulated the report in 2025. This is the predecessor dispute to DS632 and the first WTO-level ruling on SEP anti-suit injunctions.",
+    timeline:[
+      {y:'2022',t:'Panel proceedings commence under DS611.'},
+      {y:'2024',t:'Panel Report circulated.'},
+      {y:'2025',t:'MPIA Appeal Arbitrator Report circulated. China found to have wrongly restricted IP rights through ASI practice.'}
+    ],
+    findings:[
+      'MPIA Appeal Arbitrator found China wrong to restrict intellectual property rights through its anti-suit injunction practice in SEP/FRAND licensing disputes.',
+      'China required to change its ASI policy to comply with TRIPS obligations regarding patent holders\' rights to seek injunctive relief in appropriate forums.',
+    ],
+    outcome:"Landmark ruling - first WTO-level decision finding that domestic court ASI practices can violate TRIPS obligations. China required to change its ASI policy. The ruling directly preceded and informed the EU's decision to file DS632 for additional issues not covered by DS611.",
+    refs:[
+      {type:'wto',label:'WTO News: Appeal Arbitrator Finds China Wrong on IP Rights (DS611)',url:'https://www.wto.org/english/news_e/news25_e/ds611rfc_14mar25_e.htm'},
+      {type:'wto',label:'Official WTO Case Page (DS611)',url:'https://www.wto.org/english/tratop_e/dispu_e/cases_e/ds611_e.htm'},
+      {type:'sch',label:'WTO Panel Decision in EU-China SEP Anti-Suit Injunctions Dispute (SSRN, 2025)',url:'https://papers.ssrn.com/sol3/Delivery.cfm/5265893.pdf?abstractid=5265893&mirid=1'},
+    ]
+  }
+];
+
+
+// ================================================================
+// D3 GLOBE ENGINE
+// ================================================================
+let activeFilter = 'all', searchQuery = '', hoveredCase = null, activeCase = null;
+
+const gwEl   = document.getElementById('gw');
+const tip    = document.getElementById('tip');
+const tipCat = document.getElementById('tip-cat');
+const tipNm  = document.getElementById('tip-name');
+const tipDs  = document.getElementById('tip-ds');
+const coordEl= document.getElementById('coords');
+
+// Remove old WebGL canvas, create D3 canvas
+const oldGc = document.getElementById('gc');
+const oldStars = document.getElementById('stars-c');
+if(oldGc) oldGc.remove();
+if(oldStars) oldStars.remove();
+
+const canvas = document.createElement('canvas');
+canvas.id = 'gc';
+canvas.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;cursor:grab;display:block;';
+gwEl.insertBefore(canvas, gwEl.firstChild);
+const ctx = canvas.getContext('2d');
+
+// ─── Continent color palettes (from world_globe-2) ───────────
+const PALETTE = {
+  NA:  { fill:'#1a4d38', stroke:'#3dba87' },
+  SA:  { fill:'#1b3d20', stroke:'#6bbf72' },
+  EU:  { fill:'#162c45', stroke:'#5a9fd4' },
+  AFR: { fill:'#3d2210', stroke:'#d4894a' },
+  AS:  { fill:'#281540', stroke:'#a06cc0' },
+  OC:  { fill:'#0b3030', stroke:'#2ec4c4' },
+  AN:  { fill:'#142030', stroke:'#8bbdd4' },
+};
+const ISO_CONTINENT = {};
+[12,24,72,108,120,132,140,148,174,175,180,204,226,231,232,262,266,270,288,324,384,404,430,434,450,454,466,478,508,516,562,566,624,638,646,678,686,694,706,710,716,728,729,748,768,788,800,834,894]
+  .forEach(id => ISO_CONTINENT[id]='AFR');
+[8,20,40,56,70,100,112,191,196,203,208,233,246,250,276,300,336,348,352,372,380,428,438,440,442,470,492,498,499,528,578,616,620,642,643,674,688,703,705,724,752,756,804,807,826,831,832,833]
+  .forEach(id => ISO_CONTINENT[id]='EU');
+[4,31,48,50,51,64,96,104,116,144,156,275,356,360,364,368,376,392,398,400,408,410,414,418,422,458,462,496,524,586,608,634,682,760,762,764,784,792,795,860,704,887]
+  .forEach(id => ISO_CONTINENT[id]='AS');
+[28,44,52,60,84,124,136,188,192,214,222,320,328,332,340,388,484,500,558,591,630,659,662,670,780,840]
+  .forEach(id => ISO_CONTINENT[id]='NA');
+[32,68,76,152,170,218,254,600,604,740,858,862]
+  .forEach(id => ISO_CONTINENT[id]='SA');
+[36,90,242,296,316,520,540,548,570,580,583,584,585,598,882,772,776,798,876]
+  .forEach(id => ISO_CONTINENT[id]='OC');
+[10].forEach(id => ISO_CONTINENT[id]='AN');
+function getPalette(id){ return PALETTE[ISO_CONTINENT[+id]||'AS']; }
+
+// ─── Filter helper ───────────────────────────────────────────
+function getVis(){
+  const q=searchQuery.toLowerCase().trim();
+  return DB.filter(c=>{
+    const ck=activeFilter==='all'||c.cat===activeFilter;
+    if(!q)return ck;
+    return ck&&(c.name.toLowerCase().includes(q)||c.ds.toLowerCase().includes(q)||
+      c.product.toLowerCase().includes(q)||c.complainants.toLowerCase().includes(q)||
+      c.respondent.toLowerCase().includes(q)||(c.articles||[]).some(a=>a.toLowerCase().includes(q)));
+  });
+}
+
+// ─── Stars ────────────────────────────────────────────────────
+const STARS = Array.from({length:750}, () => ({
+  x: Math.random(), y: Math.random(),
+  r: Math.random()*1.4+0.15, a: Math.random()*0.65+0.1
+}));
+
+// ─── Globe state ──────────────────────────────────────────────
+let W, H, R;
+let projection, pathGen, graticule;
+let rotation = [20, -25, 0];
+let velLon = 0.10, velLat = 0;
+let isDragging = false, lastMX = 0, lastMY = 0, autoSpin = true;
+let zoomLevel = 1.0;
+let countries = null, borders = null;
+let d3Loaded = false;
+
+function setupGlobe() {
+  W = canvas.width  = gwEl.offsetWidth  || 800;
+  H = canvas.height = gwEl.offsetHeight || 600;
+  R = Math.min(W, H) * 0.38 * zoomLevel;
+  if(!window.d3 || !window.topojson) return;
+  projection = d3.geoOrthographic()
+    .scale(R)
+    .translate([W/2, H/2])
+    .clipAngle(90)
+    .rotate(rotation);
+  pathGen   = d3.geoPath(projection, ctx);
+  graticule = d3.geoGraticule()();
+}
+window.addEventListener('resize', () => { setupGlobe(); });
+
+// ─── Load D3 + TopoJSON dynamically ───────────────────────────
+function loadScript(src, cb) {
+  const s = document.createElement('script');
+  s.src = src; s.onload = cb; document.head.appendChild(s);
+}
+loadScript('https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js', () => {
+  loadScript('https://cdn.jsdelivr.net/npm/topojson-client@3/dist/topojson-client.min.js', () => {
+    fetch('https://cdn.jsdelivr.net/npm/world-atlas@2/countries-50m.json')
+      .then(r => r.json())
+      .then(world => {
+        countries = topojson.feature(world, world.objects.countries);
+        borders   = topojson.mesh(world, world.objects.countries, (a,b) => a !== b);
+        d3Loaded = true;
+        const loadEl = document.getElementById('globe-loading');
+        if(loadEl) loadEl.style.display = 'none';
+        setupGlobe();
+      })
+      .catch(() => {
+        const loadEl = document.getElementById('globe-loading');
+        if(loadEl) loadEl.innerHTML='<p style="color:#c9a84c;font-family:monospace;font-size:11px;">Map data unavailable. Check your connection.</p>';
+      });
+  });
+});
+
+function isVisible(lon, lat) {
+  if(!projection) return false;
+  const r = projection.rotate();
+  const dlon = (lon + r[0] + 540) % 360 - 180;
+  const dlat = lat + r[1];
+  return Math.sqrt(dlon*dlon + dlat*dlat) < 90;
+}
+
+function drawGlobeFrame() {
+  if(!projection || !pathGen) return;
+
+  // Clear
+  ctx.clearRect(0, 0, W, H);
+
+  // Stars
+  ctx.save();
+  ctx.fillStyle = '#fff';
+  for (const s of STARS) {
+    ctx.globalAlpha = s.a;
+    ctx.beginPath();
+    ctx.arc(s.x*W, s.y*H, s.r, 0, Math.PI*2);
+    ctx.fill();
+  }
+  ctx.restore();
+
+  // Atmosphere glow
+  const atmGrad = ctx.createRadialGradient(W/2, H/2, R*0.9, W/2, H/2, R*1.22);
+  atmGrad.addColorStop(0, 'rgba(25,90,200,0.14)');
+  atmGrad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(W/2, H/2, R*1.22, 0, Math.PI*2);
+  ctx.fillStyle = atmGrad; ctx.fill();
+
+  // Ocean
+  ctx.beginPath(); pathGen({type:'Sphere'});
+  const oceanGrad = ctx.createRadialGradient(W/2-R*0.22, H/2-R*0.22, 0, W/2, H/2, R);
+  oceanGrad.addColorStop(0, '#0d2f50'); oceanGrad.addColorStop(0.7, '#071a30'); oceanGrad.addColorStop(1, '#030e1c');
+  ctx.fillStyle = oceanGrad; ctx.fill();
+
+  // Graticule
+  ctx.beginPath(); pathGen(graticule);
+  ctx.strokeStyle = 'rgba(50,130,210,0.10)'; ctx.lineWidth = 0.5; ctx.stroke();
+
+  // Country fills
+  if(countries) {
+    for(const f of countries.features) {
+      const pal = getPalette(f.id);
+      ctx.beginPath(); pathGen(f);
+      ctx.fillStyle = pal.fill; ctx.fill();
+    }
+  }
+
+  // Internal borders
+  if(borders) {
+    ctx.beginPath(); pathGen(borders);
+    ctx.strokeStyle = 'rgba(200,230,255,0.18)'; ctx.lineWidth = 0.5; ctx.stroke();
+  }
+
+  // Per-country colored outline
+  if(countries) {
+    for(const f of countries.features) {
+      const pal = getPalette(f.id);
+      ctx.beginPath(); pathGen(f);
+      ctx.strokeStyle = pal.stroke + '60'; ctx.lineWidth = 0.9; ctx.stroke();
+    }
+  }
+
+  // Globe rim
+  ctx.beginPath(); pathGen({type:'Sphere'});
+  ctx.strokeStyle = 'rgba(90,160,255,0.38)'; ctx.lineWidth = 1.5; ctx.stroke();
+
+  // Rim vignette
+  const rimGrad = ctx.createRadialGradient(W/2, H/2, R*0.78, W/2, H/2, R);
+  rimGrad.addColorStop(0, 'rgba(0,0,0,0)');
+  rimGrad.addColorStop(0.65, 'rgba(0,8,22,0.22)');
+  rimGrad.addColorStop(1, 'rgba(0,4,14,0.78)');
+  ctx.beginPath(); ctx.arc(W/2, H/2, R, 0, Math.PI*2);
+  ctx.fillStyle = rimGrad; ctx.fill();
+
+  // Specular highlight
+  const spec = ctx.createRadialGradient(W/2-R*0.4, H/2-R*0.38, 0, W/2-R*0.12, H/2-R*0.12, R*0.9);
+  spec.addColorStop(0, 'rgba(140,210,255,0.1)'); spec.addColorStop(0.5, 'rgba(80,160,255,0.03)'); spec.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.beginPath(); ctx.arc(W/2, H/2, R, 0, Math.PI*2);
+  ctx.fillStyle = spec; ctx.fill();
+
+  // IPR Case Pins
+  drawPins();
+
+  // Coords
+  const lonVal = ((rotation[0]) % 360 + 360) % 360;
+  const latVal = -rotation[1];
+  const lonDisplay = (lonVal>180 ? -(360-lonVal) : lonVal);
+  coordEl.textContent = `LAT ${latVal>=0?'+':''}${latVal.toFixed(1)}  LON ${lonDisplay>=0?'+':''}${lonDisplay.toFixed(1)}  |  ZOOM ${zoomLevel.toFixed(1)}x`;
+}
+
+function drawPins() {
+  if(!projection) return;
+  const vis = getVis();
+  ctx.save();
+  ctx.beginPath(); ctx.arc(W/2, H/2, R-1, 0, Math.PI*2); ctx.clip();
+  const t = Date.now()/1000;
+  vis.forEach((c, i) => {
+    const pt = projection([c.lon, c.lat]);
+    if(!pt) return;
+    // Check if on front hemisphere
+    const r = projection.rotate();
+    const dlon = (c.lon + r[0] + 540)%360 - 180;
+    const dlat = c.lat + r[1];
+    if(Math.sqrt(dlon*dlon + dlat*dlat) > 88) return;
+    const hex = CAT_HEX[c.cat] || '#c9a84c';
+    const isHovered = hoveredCase && hoveredCase.id === c.id;
+    const isActive  = activeCase  && activeCase.id  === c.id;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 2.5 + i * 0.8);
+    const baseR = isHovered || isActive ? 9 : 6;
+    const r2 = baseR + pulse * 3;
+    // Outer glow ring
+    const grad = ctx.createRadialGradient(pt[0], pt[1], 0, pt[0], pt[1], r2*2.2);
+    grad.addColorStop(0, hex + 'cc');
+    grad.addColorStop(0.4, hex + '55');
+    grad.addColorStop(1, hex + '00');
+    ctx.beginPath(); ctx.arc(pt[0], pt[1], r2*2.2, 0, Math.PI*2);
+    ctx.fillStyle = grad; ctx.fill();
+    // Pin dot
+    ctx.beginPath(); ctx.arc(pt[0], pt[1], baseR, 0, Math.PI*2);
+    ctx.fillStyle = hex; ctx.fill();
+    ctx.strokeStyle = 'rgba(255,255,255,0.7)'; ctx.lineWidth = 1.2; ctx.stroke();
+  });
+  ctx.restore();
+}
+
+function render() {
+  if(!d3Loaded || !projection) {
+    requestAnimationFrame(render);
+    return;
+  }
+  const cW = gwEl.offsetWidth||800, cH = gwEl.offsetHeight||600;
+  if(canvas.width !== cW || canvas.height !== cH) { setupGlobe(); }
+
+  if(!isDragging) {
+    if(autoSpin) {
+      rotation[0] -= velLon;
+      rotation[1] += velLat;
+      rotation[1] = Math.max(-85, Math.min(85, rotation[1]));
+      velLat *= 0.95;
+      velLon = velLon * 0.997 + 0.10 * 0.003;
+      projection.rotate(rotation);
+    } else {
+      rotation[0] -= velLon;
+      rotation[1] += velLat;
+      rotation[1] = Math.max(-85, Math.min(85, rotation[1]));
+      velLon *= 0.92; velLat *= 0.92;
+      if(Math.abs(velLon) < 0.001) velLon = 0;
+      if(Math.abs(velLat) < 0.001) velLat = 0;
+      projection.rotate(rotation);
+    }
+  }
+  drawGlobeFrame();
+  requestAnimationFrame(render);
+}
+window._atlasRender = render;
+
+// ─── Interaction ──────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => {
+  isDragging = true; autoSpin = false; lastMX = e.clientX; lastMY = e.clientY; velLon = 0; velLat = 0;
+  canvas.style.cursor = 'grabbing';
+});
+window.addEventListener('mouseup', () => { isDragging = false; canvas.style.cursor = 'grab'; });
+window.addEventListener('mousemove', e => {
+  if(isDragging) {
+    const dx = e.clientX - lastMX, dy = e.clientY - lastMY;
+    velLon = -dx * 0.25; velLat = -dy * 0.25;
+    rotation[0] += velLon; rotation[1] += velLat;
+    rotation[1] = Math.max(-85, Math.min(85, rotation[1]));
+    if(projection) projection.rotate(rotation);
+    lastMX = e.clientX; lastMY = e.clientY;
+    tip.style.display = 'none'; hoveredCase = null;
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if(isDragging || !projection) return;
+  const found = getHitCase(e.clientX, e.clientY);
+  hoveredCase = found;
+  if(found) {
+    const col = CAT_HEX[found.cat]||'#c9a84c';
+    tipCat.textContent = found.cat; tipCat.style.color = col;
+    tipNm.textContent = found.name;
+    tipDs.textContent = found.ds + ' | ' + found.respondent + ' | ' + found.year;
+    const pt = projection([found.lon, found.lat]);
+    if(pt) { tip.style.left = pt[0]+'px'; tip.style.top = pt[1]+'px'; tip.style.display = 'block'; }
+    canvas.style.cursor = 'pointer';
+  } else { tip.style.display = 'none'; canvas.style.cursor = 'grab'; }
+});
+
+canvas.addEventListener('wheel', e => {
+  e.preventDefault();
+  zoomLevel = Math.max(0.4, Math.min(3.5, zoomLevel - e.deltaY * 0.0008));
+  setupGlobe();
+}, { passive: false });
+
+canvas.addEventListener('click', e => {
+  const found = getHitCase(e.clientX, e.clientY);
+  if(found) openDetail(found.id);
+});
+
+// Touch
+let lastTouchDist = null;
+canvas.addEventListener('touchstart', e => {
+  if(e.touches.length===1){isDragging=true;autoSpin=false;lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;velLon=0;velLat=0;}
+  if(e.touches.length===2) lastTouchDist = Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+},{passive:true});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if(e.touches.length===1&&isDragging){
+    const dx=e.touches[0].clientX-lastMX,dy=e.touches[0].clientY-lastMY;
+    velLon=-dx*0.25;velLat=-dy*0.25;
+    rotation[0]+=velLon;rotation[1]+=velLat;
+    rotation[1]=Math.max(-85,Math.min(85,rotation[1]));
+    if(projection)projection.rotate(rotation);
+    lastMX=e.touches[0].clientX;lastMY=e.touches[0].clientY;
+  }
+  if(e.touches.length===2&&lastTouchDist){
+    const dist=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+    zoomLevel=Math.max(0.4,Math.min(3.5,zoomLevel*dist/lastTouchDist));
+    setupGlobe();lastTouchDist=dist;
+  }
+},{passive:false});
+canvas.addEventListener('touchend',()=>{isDragging=false;lastTouchDist=null;});
+
+// Zoom buttons
+document.getElementById('zbtn-in').addEventListener('click',()=>{zoomLevel=Math.min(3.5,zoomLevel+0.25);setupGlobe();});
+document.getElementById('zbtn-out').addEventListener('click',()=>{zoomLevel=Math.max(0.4,zoomLevel-0.25);setupGlobe();});
+document.getElementById('zbtn-reset').addEventListener('click',()=>{zoomLevel=1.0;rotation=[20,-25,0];autoSpin=true;velLon=0.10;velLat=0;if(projection)projection.rotate(rotation);});
+
+// ─── Hit detection for pins ───────────────────────────────────
+function getHitCase(clientX, clientY) {
+  if(!projection) return null;
+  const rect = canvas.getBoundingClientRect();
+  const mx = clientX - rect.left, my = clientY - rect.top;
+  const vis = getVis(); let best = null, bestD = 24;
+  vis.forEach(c => {
+    const r2 = projection.rotate();
+    const dlon = (c.lon + r2[0] + 540)%360 - 180;
+    const dlat = c.lat + r2[1];
+    if(Math.sqrt(dlon*dlon + dlat*dlat) > 88) return;
+    const pt = projection([c.lon, c.lat]);
+    if(!pt) return;
+    const d = Math.hypot(mx - pt[0], my - pt[1]);
+    if(d < bestD) { best = c; bestD = d; }
+  });
+  return best;
+}
+
+// ─── flyTo ────────────────────────────────────────────────────
+function flyTo(lat, lon) {
+  const tRot = [-lon, -lat, 0];
+  const sRot = [...rotation], sT = Date.now();
+  autoSpin = false;
+  function step() {
+    const p = Math.min(1,(Date.now()-sT)/750);
+    const e = p<0.5 ? 2*p*p : -1+(4-2*p)*p;
+    rotation[0] = sRot[0] + (tRot[0]-sRot[0])*e;
+    rotation[1] = sRot[1] + (tRot[1]-sRot[1])*e;
+    rotation[2] = 0;
+    if(projection) projection.rotate(rotation);
+    if(p<1) requestAnimationFrame(step);
+  }
+  step();
+}
+
+// ================================================================
+// SIDEBAR & DETAIL PANEL
+// ================================================================
+function renderList(){
+  const cases=getVis();const n=cases.length;
+  document.getElementById('list-n').textContent=n;
+  document.getElementById('h-n').textContent=n;
+  const list=document.getElementById('sb-list');
+  if(!n){list.innerHTML='<div class="nores">No matching disputes found.</div>';return;}
+  list.innerHTML=cases.map(c=>{
+    const col=CAT_HEX[c.cat]||'#c9a84c';
+    return`<div class="crow${activeCase&&activeCase.id===c.id?' on':''}" data-id="${c.id}">
+      <div class="chead">
+        <div class="cname">${c.name}</div>
+        <div class="ctag" style="background:${col}22;color:${col};border:1px solid ${col}44">${c.cat}</div>
+      </div>
+      <div class="cds">${c.ds} &middot; ${c.year}</div>
+      <div class="cpts">${c.flags}&nbsp; ${c.complainants.split(';')[0].trim()} v. ${c.respondent}</div>
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.crow').forEach(row=>{
+    row.addEventListener('click',()=>openDetail(row.dataset.id));
+  });
+}
+
+function openDetail(id){
+  const c=DB.find(x=>x.id===id);if(!c)return;
+  activeCase=c;renderList();
+
+  const col=CAT_HEX[c.cat]||'#c9a84c';
+  const stCls=STCLS[c.status]||'st-ag';
+  const stLabel=STLBL[c.status]||c.status;
+
+  const arts=(c.articles||[]).map(a=>`<div class="art">${a}</div>`).join('');
+  const tl=(c.timeline||[]).map(t=>`
+    <div class="ti"><div class="tdot"></div><div class="tc2">
+      <div class="ty">${t.y}</div><div class="tt">${t.t}</div>
+    </div></div>`).join('');
+  const findings=(c.findings||[]).map(f=>`<div class="fi">${f}</div>`).join('');
+  const iconMap={wto:'WTO',sch:'SCH',vid:'VID',art:'ART'};
+  const refs=(c.refs||[]).map(ref=>{
+    const cls=`ref-icon ${ref.type}`;
+    return`<div class="ref-item">
+      <div class="${cls}">${iconMap[ref.type]||'REF'}</div>
+      <div class="ref-body">
+        <div class="ref-label">${ref.type==='wto'?'Official WTO Source':ref.type==='sch'?'Scholarly Article':ref.type==='vid'?'Video Resource':'Further Reading'}</div>
+        <div class="ref-link"><a href="${ref.url}" target="_blank" rel="noopener noreferrer">${ref.label}</a></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('detbody').innerHTML=`
+    <div class="d-flags">${c.flags}</div>
+    <div class="d-title">${c.name}</div>
+    <div class="d-badges">
+      <div class="ctag" style="background:${col}22;color:${col};border:1px solid ${col}44">${c.cat}</div>
+      <div class="stag ${stCls}">${stLabel}</div>
+    </div>
+    <div class="d-dkt">
+      <div class="dkt-row"><span class="dkt-lbl">DS Ref</span><span class="dkt-val">${c.ds}</span></div>
+      <div class="dkt-row"><span class="dkt-lbl">Period</span><span class="dkt-val">${c.year}</span></div>
+      <div class="dkt-row"><span class="dkt-lbl">Complainant(s)</span><span class="dkt-val">${c.complainants}</span></div>
+      <div class="dkt-row"><span class="dkt-lbl">Respondent</span><span class="dkt-val">${c.respondent}</span></div>
+      <div class="dkt-row"><span class="dkt-lbl">Forum</span><span class="dkt-val">${c.forum}</span></div>
+    </div>
+    <div class="sigbar">
+      <span class="siglbl">Significance</span>
+      <div class="sigtr"><div class="sigfill" data-w="${c.sig}"></div></div>
+      <span class="sigsc">${c.sig}<span style="font-size:.58rem;font-family:'Courier Prime',monospace;color:var(--txt-dim)">/100</span></span>
+    </div>
+    <div class="dsec"><h3>TRIPS and WTO Articles Engaged</h3><div class="artlist">${arts}</div></div>
+    <div class="dsec"><h3>Product in Dispute</h3><p>${c.product}</p></div>
+    <div class="dsec"><h3>Background and Context</h3><p>${c.background}</p></div>
+    ${tl?`<div class="dsec"><h3>Procedural Timeline</h3><div class="tline">${tl}</div></div>`:''}
+    ${findings?`<div class="dsec"><h3>Key Panel and AB Findings</h3><div class="flist">${findings}</div></div>`:''}
+    <div class="dsec"><h3>Outcome and Legal Significance</h3><div class="obox"><div class="olbl">Decision / Resolution</div><p>${c.outcome}</p></div></div>
+    ${refs?`<div class="ref-section"><h3>Verified References and Sources</h3><div class="ref-list">${refs}</div></div>`:''}
+  `;
+
+  document.getElementById('det').classList.add('open');
+  requestAnimationFrame(()=>{
+    const fill=document.querySelector('#detbody .sigfill');
+    if(fill)fill.style.width=fill.dataset.w+'%';
+  });
+  flyTo(c.lat,c.lon);
+}
+
+function closeDetail(){
+  document.getElementById('det').classList.remove('open');
+  activeCase=null;renderList();
+}
+document.getElementById('dethdr').addEventListener('click',closeDetail);
+
+// Filters
+document.getElementById('cat-row').addEventListener('click',e=>{
+  const chip=e.target.closest('.chip');if(!chip)return;
+  activeFilter=chip.dataset.c;
+  document.querySelectorAll('.chip').forEach(ch=>{
+    const cur=ch.dataset.c===activeFilter;
+    ch.classList.toggle('on',cur);
+    const col=cur?(activeFilter==='all'?'#c9a84c':CAT_HEX[activeFilter]):null;
+    ch.style.background=col||'';ch.style.color=col?'#03060d':'';ch.style.borderColor=col||'';
+  });
+  if(activeCase&&activeCase.cat!==activeFilter&&activeFilter!=='all')closeDetail();
+  renderList();
+});
+
+document.getElementById('srch').addEventListener('input',e=>{
+  searchQuery=e.target.value;renderList();
+});
+
+// Init
+renderList();
+render();
+
+// Set initial chip style
+(()=>{
+  const all=document.querySelector('.chip[data-c="all"]');
+  if(all){all.style.background='#c9a84c';all.style.color='#03060d';all.style.borderColor='#c9a84c';}
+})();
+
+} // end atlasInit
+
+
+// Init tracking
+if(!localStorage.getItem('vinaya_visited')) {
+  localStorage.setItem('vinaya_visited','1');
+}
+</script>
+</body>
+</html>
